@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b226mm7sgc6y0"]
+
+[ext_resource type="Script" path="res://src/engine/platform/godot/script/avatar.ts" id="1_12yf8"]
+
+[node name="avatar" type="Node2D"]
+script = ExtResource("1_12yf8")

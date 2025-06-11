@@ -1,0 +1,29 @@
+{
+  "name": "pal-work-system",
+  "version": "1.0.0",
+  "description": "帕鲁工作系统 - 让怪物伙伴进行工作并产出道具",
+  "main": "test.ts",
+  "scripts": {
+    "console": "cross-env NODE_ENV=development ts-node platform/console/interactive-console.ts",
+    "build": "tsc",
+    "start": "node --experimental-json-modules dist/test/BaseTest.js"
+  },
+  "keywords": [
+    "game",
+    "work-system",
+    "typescript",
+    "pal",
+    "building"
+  ],
+  "author": "PGame Developer",
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "mobx": "^6.13.7",
+    "superjson": "^2.2.2"
+  }
+}

@@ -1,0 +1,176 @@
+import { WorkInfo, WorkType } from '../WorkData';
+import { JsonMapParser } from '../../Util/JsonMapParser';
+
+// 工作配置数据
+const workConfigData = {
+    "Mining": {
+        "workType": "Mining",
+        "name": "挖矿",
+        "description": "在矿脉中挖掘各种矿物资源",
+        "baseTime": 30,
+        "requiredLevel": 1,
+        "stamminaCost": 20,
+        "outputs": [
+            { "itemId": 1, "quantity": 3, "probability": 0.8 },
+            { "itemId": 2, "quantity": 1, "probability": 0.4 },
+            { "itemId": 3, "quantity": 1, "probability": 0.1 }
+        ]
+    },
+    
+    "Logging": {
+        "workType": "Logging",
+        "name": "伐木",
+        "description": "砍伐森林中的树木获得木材",
+        "baseTime": 24,
+        "requiredLevel": 1,
+        "stamminaCost": 15,
+        "outputs": [
+            { "itemId": 4, "quantity": 4, "probability": 0.9 },
+            { "itemId": 5, "quantity": 2, "probability": 0.3 }
+        ]
+    },
+    
+    "Farming": {
+        "workType": "Farming",
+        "name": "农耕",
+        "description": "种植和收获农作物",
+        "baseTime": 20,
+        "requiredLevel": 2,
+        "stamminaCost": 25,
+        "outputs": [
+            { "itemId": 6, "quantity": 5, "probability": 0.8 },
+            { "itemId": 7, "quantity": 2, "probability": 0.4 },
+            { "itemId": 8, "quantity": 1, "probability": 0.2 }
+        ]
+    },
+    
+    "Construction": {
+        "workType": "Construction",
+        "name": "建造",
+        "description": "建造和修理建筑设施",
+        "baseTime": 35,
+        "requiredLevel": 3,
+        "stamminaCost": 40,
+        "outputs": [
+            { "itemId": 9, "quantity": 1, "probability": 0.3 },
+            { "itemId": 10, "quantity": 1, "probability": 0.3 },
+            { "itemId": 1, "quantity": 2, "probability": 0.5 }
+        ]
+    },
+    
+    "Crafting": {
+        "workType": "Crafting",
+        "name": "制作",
+        "description": "制作各种工具和装备",
+        "baseTime": 30,
+        "requiredLevel": 4,
+        "stamminaCost": 35,
+        "outputs": [
+            { "itemId": 11, "quantity": 1, "probability": 0.4 },
+            { "itemId": 12, "quantity": 1, "probability": 0.3 },
+            { "itemId": 13, "quantity": 2, "probability": 0.6 }
+        ]
+    },
+    
+    "Cooking": {
+        "workType": "Cooking",
+        "name": "烹饪",
+        "description": "烹制美味的食物和药剂",
+        "baseTime": 18,
+        "requiredLevel": 2,
+        "stamminaCost": 10,
+        "outputs": [
+            { "itemId": 14, "quantity": 2, "probability": 0.7 },
+            { "itemId": 15, "quantity": 1, "probability": 0.3 },
+            { "itemId": 6, "quantity": 3, "probability": 0.5 }
+        ]
+    },
+    
+    "Transport": {
+        "workType": "Transport",
+        "name": "运输",
+        "description": "运输物资和货物",
+        "baseTime": 10,
+        "requiredLevel": 1,
+        "stamminaCost": 30,
+        "outputs": [
+            { "itemId": 1, "quantity": 2, "probability": 0.6 },
+            { "itemId": 4, "quantity": 2, "probability": 0.6 },
+            { "itemId": 2, "quantity": 1, "probability": 0.3 }
+        ]
+    },
+    
+    "Guarding": {
+        "workType": "Guarding",
+        "name": "守卫",
+        "description": "保护基地安全，巡逻警戒",
+        "baseTime": 10,
+        "requiredLevel": 3,
+        "stamminaCost": 20,
+        "outputs": [
+            { "itemId": 5, "quantity": 1, "probability": 0.4 },
+            { "itemId": 1, "quantity": 1, "probability": 0.3 },
+            { "itemId": 2, "quantity": 1, "probability": 0.2 }
+        ]
+    },
+    
+    "Research": {
+        "workType": "Research",
+        "name": "研究",
+        "description": "研究新技术和魔法知识",
+        "baseTime": 30,
+        "requiredLevel": 5,
+        "stamminaCost": 50,
+        "outputs": [
+            { "itemId": 16, "quantity": 2, "probability": 0.6 },
+            { "itemId": 17, "quantity": 1, "probability": 0.1 },
+            { "itemId": 15, "quantity": 2, "probability": 0.4 }
+        ]
+    },
+    
+    "Hunting": {
+        "workType": "Hunting",
+        "name": "狩猎",
+        "description": "狩猎野生动物获得食物和材料",
+        "baseTime": 420,
+        "requiredLevel": 2,
+        "stamminaCost": 35,
+        "outputs": [
+            { "itemId": 18, "quantity": 3, "probability": 0.8 },
+            { "itemId": 19, "quantity": 2, "probability": 0.6 },
+            { "itemId": 20, "quantity": 1, "probability": 0.05 }
+        ]
+    },
+    
+    "Rest": {
+        "workType": "Rest",
+        "name": "休息",
+        "description": "休息恢复体力，体力不足时的最佳选择",
+        "baseTime": 120,
+        "requiredLevel": 1,
+        "stamminaCost": -30,
+        "outputs": []
+    }
+};
+
+// 工作配置数据库
+export const WorkInfoConfig: Map<WorkType, WorkInfo> = JsonMapParser.fromJson<WorkType, WorkInfo>(
+    workConfigData,
+    {
+        keyConverter: (key: string) => WorkType[key as keyof typeof WorkType],
+        valueConverter: (value: any) => ({
+            ...value,
+            workType: WorkType[value.workType as keyof typeof WorkType]
+        })
+    }
+);
+
+// 获取所有工作类型
+export function getAllWorkTypes(): WorkType[] {
+    return Array.from(WorkInfoConfig.keys());
+}
+
+// 根据等级获取可用的工作
+export function getAvailableWorks(level: number): WorkInfo[] {
+    return Array.from(WorkInfoConfig.values()).filter(config => config.requiredLevel <= level);
+}
