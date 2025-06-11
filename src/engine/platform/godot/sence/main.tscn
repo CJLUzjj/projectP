@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://k6xnvknuvov6"]
 
-[ext_resource type="Script" path="res://src/engine/platform/godot/script/main.ts" id="1_11eln"]
+[ext_resource type="Script" uid="uid://4ow1qpfxg7e7" path="res://src/engine/platform/godot/script/main.ts" id="1_11eln"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_11eln")
