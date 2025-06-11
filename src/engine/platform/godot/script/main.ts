@@ -39,8 +39,10 @@ export default class Main extends Node {
 	_on_start_button_pressed(): void {
 		for (let idx = 0; idx < this.get_child_count(); idx++) {
 			const child = this.get_child(idx);
-			log.info("remove_child", child.get_name());
-			this.remove_child(child);
+			if (child) {
+				log.info("remove_child", child.get_name());
+				this.remove_child(child);
+			}
 		}
 		GlobalGameManager.getInstance().startGame();
 		log.info("游戏开始");
