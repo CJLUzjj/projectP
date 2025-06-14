@@ -1,3 +1,5 @@
+import { BuildingType, Position } from "./common";
+
 // 工作类型枚举
 export enum WorkType {
     None = "None",               // 无
@@ -94,13 +96,13 @@ export class RestWork extends BaseWork {
 }
 
 export class BuildingWork extends BaseWork {
-    constructor(workType: WorkType, baseTime: number, requiredLevel: number, stamminaCost: number, inputs: WorkCost[], buildingType: string) {
+    constructor(workType: WorkType, baseTime: number, requiredLevel: number, stamminaCost: number, inputs: WorkCost[], buildingType: BuildingType) {
         super(workType, baseTime, requiredLevel, stamminaCost);
         this.inputs = inputs;
         this.buildingType = buildingType;
     }
     inputs: WorkCost[];
-    buildingType: string;
+    buildingType: BuildingType;
 }
 
 export class SyntheticWork extends BaseWork {
@@ -120,44 +122,46 @@ export class BaseWorkProgressData {
     endTime: number;
     progress: number;
     buildingId: number;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number) {
+    position: Position;
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position) {
         this.monsterId = monsterId;
         this.workType = workType;
         this.startTime = startTime;
         this.endTime = endTime;
         this.progress = progress;
         this.buildingId = buildingId;
+        this.position = position;
     }
 }
 
 export class ProductionWorkProgressData extends BaseWorkProgressData {
     workConfig: ProductionWork;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, workConfig: ProductionWork) {
-        super(monsterId, workType, startTime, endTime, progress, buildingId);
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position, workConfig: ProductionWork) {
+        super(monsterId, workType, startTime, endTime, progress, buildingId, position);
         this.workConfig = workConfig;
     }
 }
 
 export class BuildingWorkProgressData extends BaseWorkProgressData {
     workConfig: BuildingWork;
-        constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, workConfig: BuildingWork) {
-        super(monsterId, workType, startTime, endTime, progress, buildingId);
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position, workConfig: BuildingWork) {
+        super(monsterId, workType, startTime, endTime, progress, buildingId, position);
         this.workConfig = workConfig;
     }
 }
 
 export class RestWorkProgressData extends BaseWorkProgressData {
     workConfig: RestWork;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, workConfig: RestWork) {
-        super(monsterId, workType, startTime, endTime, progress, buildingId);
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position, workConfig: RestWork) {
+        super(monsterId, workType, startTime, endTime, progress, buildingId, position);
         this.workConfig = workConfig;
     }
 }
 
 export class SyntheticWorkProgressData extends BaseWorkProgressData {
     workConfig: SyntheticWork;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, workConfig: SyntheticWork) {
-        super(monsterId, workType, startTime, endTime, progress, buildingId);
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position, workConfig: SyntheticWork) {
+        super(monsterId, workType, startTime, endTime, progress, buildingId, position);
         this.workConfig = workConfig;
     }
 }

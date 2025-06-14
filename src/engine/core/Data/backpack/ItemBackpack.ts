@@ -9,12 +9,28 @@ export class ItemBackpack extends AbstractBackpack<ItemIndex> {
         super(maxCapacity);
     }
 
+    // todo: 新增通知机制，当物品发生变化时通知到表现层
     /**
      * 添加道具到库存
      */
     public addItemToBackpack(itemId: number, quantity: number): void {
         const itemIndex: ItemIndex = new ItemIndex(itemId);
         this.addItem(itemId.toString(), itemIndex, quantity);
+    }
+
+    public removeItemFromBackpack(itemId: number, quantity: number): boolean {
+        return this.removeItem(itemId.toString(), quantity);
+    }
+
+    public hasItemInBackpack(itemId: number, quantity: number): boolean {
+        const item = this.getItem(itemId.toString());
+        if (!item) {
+            return false;
+        }
+        if (item.quantity && item.quantity >= quantity) {
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -3,6 +3,7 @@ import { BaseEntity } from "../../Infra/Base/BaseEntity";
 import { RegisterComponent } from "../../Infra/ComponentRegistry";
 import { ProductionWorkProgressData, WorkType } from "../../Data/WorkData";
 import { ProductionWorkConfig } from "../../Data/config/work/ProductionWork";
+import { Position } from "../../Data/common";
 @RegisterComponent("ProductionWorkProgress")
 export class ProductionWorkProgressComponent extends BaseComponent {
     private progressMap: Map<number, ProductionWorkProgressData>;
@@ -12,12 +13,12 @@ export class ProductionWorkProgressComponent extends BaseComponent {
         this.progressMap = new Map();
     }
 
-    addWorkProgress(monsterId: number, workType: WorkType, buildingId: number, time: number): ProductionWorkProgressData | null {
+    addWorkProgress(monsterId: number, workType: WorkType, buildingId: number, time: number, position: Position): ProductionWorkProgressData | null {
         const workConfig = ProductionWorkConfig.get(workType);
         if (!workConfig) {
             return null;
         }
-        const progressData = new ProductionWorkProgressData(monsterId, workType, time, time, 0, buildingId, workConfig);
+        const progressData = new ProductionWorkProgressData(monsterId, workType, time, time, 0, buildingId, position, workConfig);
         this.progressMap.set(monsterId, progressData);
         return progressData;
     }

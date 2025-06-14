@@ -1,11 +1,7 @@
 import { BaseComponent } from "../Infra/Base/BaseComponent";
 import { BaseEntity } from "../Infra/Base/BaseEntity";
 import { RegisterComponent } from "../Infra/ComponentRegistry";
-
-interface Position {
-    x: number;
-    y: number;
-}
+import { Position } from "../Data/common";
 
 @RegisterComponent("Position")
 export class PositionComponent extends BaseComponent {

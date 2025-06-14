@@ -4,18 +4,18 @@ import { RegisterComponent } from "../Infra/ComponentRegistry";
 
 @RegisterComponent("Space")
 export class SpaceComponent extends BaseComponent {
-    private spaceId: string;
+    private spaceId: number;
 
     constructor(owner: BaseEntity) {
         super(owner, "Space");
-        this.spaceId = "";
+        this.spaceId = 0;
     }
 
-    setSpaceId(spaceId: string) {
+    setSpaceId(spaceId: number) {
         this.spaceId = spaceId;
     }
 
-    getSpaceId() {
+    getSpaceId(): number {
         return this.spaceId;
     }
 }

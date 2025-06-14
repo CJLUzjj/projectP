@@ -1,3 +1,4 @@
+import { BuildingType } from "../../..//Data/common";
 import { BuildingWork, WorkType } from "../../../Data/WorkData";
 import { JsonMapParser } from "../../../Util/JsonMapParser";
 
@@ -20,6 +21,7 @@ export const BuildingWorkConfig: Map<WorkType, BuildingWork> =
         keyConverter: (key: string) => WorkType[key as keyof typeof WorkType],
         valueConverter: (value: any, key: string) => ({
             ...value,
+            buildingType: value.buildingType as BuildingType
             })
         }
     );

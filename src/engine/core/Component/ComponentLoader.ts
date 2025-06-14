@@ -23,10 +23,6 @@ import "./Property/AvatarPropertyComponent";
 import "./Property/RoomPropertyComponent";
 import "./Property/HallPropertyComponent";
 
-// 进度组件
-import "./WorkProgressComponent";
-import "./RestProgressComponent";
-
 // 处理组件
 import "./Process/ProcessBuildingComponent";
 

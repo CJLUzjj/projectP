@@ -1,27 +1,27 @@
 import { WorkType } from "../../../Data/WorkData";
-import { MonsterType, PalStatus, WorkBaseType } from "../../../Data/common";
+import { MonsterType, PalStatus, WorkBaseType, Position } from "../../../Data/common";
 import { MonsterWorkAbilityConfig } from "../../../Data/config/MonsterWorkAbilityConfig";
 import { WorkAbility } from "../../../Data/WorkData";
 import { Building } from "../../../Entity/Building";
-import { BuildingPropertyComponent } from "../../../Component/Property/BuildingPropertyComponent";
-import { WorkProgressComponent } from "../../../Component/WorkProgressComponent";
+import { BuildingPropertyComponent, BuildingState } from "../../../Component/Property/BuildingPropertyComponent";
 import { World } from "../../../Infra/World";
 import { Avatar } from "../../../Entity/Avatar";
 import { Monster } from "../../../Entity/Monster";
 import { MonsterPropertyComponent } from "../../../Component/Property/MonsterPropertyComponent";
 import { WorkInfoConfig } from "../../../Data/config/WorkInfoConfig";
-import { MonsterBaseProperty } from "../../../Data/MonsterData";
-import { calculateWorkTime } from "../Building/CreateBuilding";
-import { RestProgressComponent } from "../../../Component/RestProgressComponent";
 import { log } from "../../../Interface/Service/LogService";
 import { BuildingWorkConfig } from "../../../Data/config/work/BuildingWork";
 import { ProductionWorkConfig } from "../../../Data/config/work/ProductionWork";
 import { RestWorkConfig } from "../../../Data/config/work/RestWork";
 import { SyntheticWorkConfig } from "../../../Data/config/work/SyntheticWork";
-import { createProductionWorkProgress } from "./ProductionWork";
-import { createBuildingWorkProgress } from "./BuildingWork";
-import { createRestWorkProgress } from "./RestWork";
-import { createSyntheticWorkProgress } from "./SyntheticWork";
+import { checkCanStartProductionWork, createProductionWorkProgress, processFinishProductionWork } from "./ProductionWork";
+import { checkCanStartBuildingWork, createBuildingWorkProgress, processCancelBuildingWork, processFinishBuildingWork, tryCreateBuildingForWork } from "./BuildingWork";
+import { checkCanStartRestWork, createRestWorkProgress, processFinishRestWork } from "./RestWork";
+import { checkCanStartSyntheticWork, createSyntheticWorkProgress, processCancelSyntheticWork, processFinishSyntheticWork } from "./SyntheticWork";
+import { ProductionWorkProgressComponent } from "../../../Component/Work/ProductionWorkProgressComponent";
+import { BuildingWorkProgressComponent } from "../../../Component/Work/BuildingWorkProgressComponent";
+import { RestWorkProgressComponent } from "../../../Component/Work/RestWorkProgressComponent";
+import { SyntheticWorkProgressComponent } from "../../../Component/Work/SyntheticWorkProgressComponent";
 export const workIndex: Map<WorkType, WorkBaseType> = new Map();
 
 function buildIndex() {
@@ -61,52 +61,10 @@ export function hasAvailableWorkSlot(building: Building, workType: WorkType): bo
     return false;
 }
 
-export function processStartWork1(world: World, avatarId: number, buildingId: number, workType: WorkType, monsterId: number): boolean {
-    const building = world.getEntitiesManager().getEntity(buildingId) as Building;
-    if (!building) {
-        log.info("建筑不存在", buildingId);
-        return false;
-    }
-
-    const avatar = world.getEntitiesManager().getEntity(avatarId) as Avatar;
-    if (!avatar) {
-        log.info("avatar不存在", avatarId);
-        return false;
-    }
-
-    const monster = world.getEntitiesManager().getEntity(monsterId) as Monster;
-    if (!monster) {
-        log.info("怪物不存在", monsterId);
-        return false;
-    }
-    
-    if (!checkCanStartWork(monster, building, workType)) {
-        return false;
-    }
-
-    const buildingPropertyComponent = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
-    buildingPropertyComponent.addWorkers(monsterId);
-
-    const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
-    monsterPropertyComponent.startWork(workType, buildingId, world.getCurrentVirtualTime());
-
+export function processStartWork(world: World, avatarId: number, buildingId: number, workType: WorkType, monsterId: number, position: Position): boolean {
     const baseType = workIndex.get(workType);
-    if (baseType == WorkBaseType.Production) {
-        createProductionWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty);
-    } else if (baseType == WorkBaseType.Building) {
-        createBuildingWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty);
-    } else if (baseType == WorkBaseType.Rest) {
-        createRestWorkProgress(world, building, monsterId, monsterPropertyComponent.baseProperty);
-    } else if (baseType == WorkBaseType.Synthetic) {
-        createSyntheticWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty);
-    }
-    return true;
-}
-
-export function processStartWork(world: World, avatarId: number, buildingId: number, workType: WorkType, monsterId: number): boolean {
-    const building = world.getEntitiesManager().getEntity(buildingId) as Building;
-    if (!building) {
-        log.info("建筑不存在", buildingId);
+    if (!baseType) {
+        log.info("工作类型不存在", workType);
         return false;
     }
 
@@ -121,8 +79,27 @@ export function processStartWork(world: World, avatarId: number, buildingId: num
         log.info("怪物不存在", monsterId);
         return false;
     }
+
+    let building = world.getEntitiesManager().getEntity(buildingId) as Building;
+    if (!building) {
+        log.info("建筑不存在", buildingId);
+        return false;
+    }
     
-    if (!checkCanStartWork(monster, building, workType)) {
+    if (baseType == WorkBaseType.Building) {
+        const workConfig = BuildingWorkConfig.get(workType);
+        if (!workConfig) {
+            log.info("工作配置不存在", workType);
+            return false;
+        }
+        const newBuilding = tryCreateBuildingForWork(world, avatar, workConfig.buildingType, position);
+        if (!newBuilding) {
+            log.info("建筑创建失败", buildingId);
+            return false;
+        }
+        building = newBuilding;
+    }
+    if (!checkCanStartWork(avatar,monster, building, workType)) {
         return false;
     }
 
@@ -132,33 +109,21 @@ export function processStartWork(world: World, avatarId: number, buildingId: num
     const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
     monsterPropertyComponent.startWork(workType, buildingId, world.getCurrentVirtualTime());
 
-    createWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty);
+    if (baseType == WorkBaseType.Production) {
+        createProductionWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty, position);
+    } else if (baseType == WorkBaseType.Building) {
+        createBuildingWorkProgress(world, avatar, building, monsterId, workType, monsterPropertyComponent.baseProperty, position);
+    } else if (baseType == WorkBaseType.Rest) {
+        createRestWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty, position);
+    } else if (baseType == WorkBaseType.Synthetic) {
+        createSyntheticWorkProgress(world, avatar, building, monsterId, workType, monsterPropertyComponent.baseProperty, position);
+    }
     return true;
 }
 
-function createWorkProgress(world: World, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty): WorkProgressComponent | null {
-    let workProgress = null
-    if (building.hasComponent("WorkProgress")) {
-        workProgress = building.getComponent("WorkProgress") as WorkProgressComponent;
-    } else {
-        workProgress = building.addComponent("WorkProgress") as WorkProgressComponent;
-    }
-    if (!workProgress) {
-        log.info("工作进度组件不存在", building.getId());
-        return null;
-    }
-    const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime());
-    if (!progressData) {
-        log.info("工作进度不存在", building.getId());
-        return null;
-    }
-    const buildingPropertyComponent = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
-    progressData.endTime = new Date(progressData.startTime.getTime() + calculateWorkTime(buildingPropertyComponent, monsterProperty, workType));
-    return workProgress;
-}
-
-function checkCanStartWork(monster: Monster, building: Building, workType: WorkType): boolean {
+function checkCanStartWork(avatar: Avatar, monster: Monster, building: Building, workType: WorkType): boolean {
     const workConfig = WorkInfoConfig.get(workType);
+    const baseType = workIndex.get(workType);
     if (!workConfig) {
         log.info("工作配置不存在", workType);
         return false;
@@ -191,11 +156,46 @@ function checkCanStartWork(monster: Monster, building: Building, workType: WorkT
         return false;
     }
 
-    if (!hasAvailableWorkSlot(building, workType)) {
-        log.info("建筑没有空闲工作位", building.getId());
-        return false;
+    const property = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
+
+    if (baseType != WorkBaseType.Building) {
+        if (!hasAvailableWorkSlot(building, workType)) {
+            log.info("建筑没有空闲工作位", building.getId());
+            return false;
+        }
+
+        if (property.getState() != BuildingState.Constructing) {
+            log.info("建筑已建造", building.getId());
+            return false;
+        }
+    } else {
+        if (property.getState() != BuildingState.Constructed) {
+            log.info("建筑未建造", building.getId());
+            return false;
+        }
     }
 
+    if (baseType == WorkBaseType.Building) {
+        if (!checkCanStartBuildingWork(avatar, monster, building, workType)) {
+            log.info("建筑工作检查失败", building.getId(), workType);
+            return false;
+        }
+    } else if (baseType == WorkBaseType.Production) {
+        if (!checkCanStartProductionWork(avatar, monster, building, workType)) {
+            log.info("生产工作检查失败", building.getId(), workType);
+            return false;
+        }
+    } else if (baseType == WorkBaseType.Rest) {
+        if (!checkCanStartRestWork(avatar, monster, building, workType)) {
+            log.info("休息工作检查失败", building.getId(), workType);
+            return false;
+        }
+    } else if (baseType == WorkBaseType.Synthetic) {
+        if (!checkCanStartSyntheticWork(avatar, monster, building, workType)) {
+            log.info("合成工作检查失败", building.getId(), workType);
+            return false;
+        }
+    }
     return true;
 }
 
@@ -222,18 +222,93 @@ export function processStopWork(world: World, avatarId: number, buildingId: numb
         log.info("怪物没有MonsterProperty组件", monsterId);
         return false;
     }
-    const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
-    const workType = monsterPropertyComponent.workProperty.currentWorkType;
 
-    // todo: 怪物数值变化可以抽象出来
+    const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
+    
+    const workType = monsterPropertyComponent.workProperty.currentWorkType;
+    const baseType = workIndex.get(workType);
+    // todo: 抽象化
     if (isComplete) {
-        const workConfig = WorkInfoConfig.get(workType);
-        if (!workConfig) {
+        let baseExp = 0;
+        let costStamina = 0;
+        let baseWorkConfig = null;;
+        if (baseType == WorkBaseType.Production) {
+            const workConfig = ProductionWorkConfig.get(workType);
+            baseWorkConfig = workConfig;
+            const workProgress = building.getComponent("ProductionWorkProgress") as ProductionWorkProgressComponent;
+            if (workProgress) {
+                const workProgressData = workProgress.getWorkProgress(monsterId);
+                if (workProgressData) {
+                    processFinishProductionWork(world, avatar, building, monsterId, workProgressData);
+                }
+            }
+        } else if (baseType == WorkBaseType.Building) {
+            const workConfig = BuildingWorkConfig.get(workType);
+            baseWorkConfig = workConfig;
+            const workProgress = building.getComponent("BuildingWorkProgress") as BuildingWorkProgressComponent;
+            if (workProgress) {
+                const workProgressData = workProgress.getWorkProgress(monsterId);
+                if (workProgressData) {
+                    processFinishBuildingWork(world, avatar, building, monsterId, workProgressData);
+                }
+            }
+        } else if (baseType == WorkBaseType.Rest) {
+            const workConfig = RestWorkConfig.get(workType);
+            baseWorkConfig = workConfig;
+            const workProgress = building.getComponent("RestWorkProgress") as RestWorkProgressComponent;
+            if (workProgress) {
+                const workProgressData = workProgress.getWorkProgress(monsterId);
+                if (workProgressData) {
+                    processFinishRestWork(world, avatar, building, monsterId, workProgressData);
+                }
+            }
+        } else if (baseType == WorkBaseType.Synthetic) {
+            const workConfig = SyntheticWorkConfig.get(workType);
+            baseWorkConfig = workConfig;
+            const workProgress = building.getComponent("SyntheticWorkProgress") as SyntheticWorkProgressComponent;
+            if (workProgress) {
+                const workProgressData = workProgress.getWorkProgress(monsterId);
+                if (workProgressData) {
+                    processFinishSyntheticWork(world, avatar, building, monsterId, workProgressData);
+                }
+            }
+        }
+        if (baseWorkConfig) {
+            baseExp = Math.round(baseWorkConfig.baseTime / 10);
+            costStamina = baseWorkConfig.stamminaCost;
+        } else {
             log.info("工作配置不存在", workType);
             return false;
         }
-        const baseExp = Math.round(workConfig.baseTime / 10);
-        monsterPropertyComponent.onFinishWork(baseExp, workConfig.stamminaCost);
+        monsterPropertyComponent.onFinishWork(baseExp, costStamina);
+    } else {
+        if (baseType == WorkBaseType.Building) {
+            processCancelBuildingWork(world, avatar, workType);
+        } else if (baseType == WorkBaseType.Synthetic) {
+            processCancelSyntheticWork(world, avatar, workType);
+        }
+    }
+
+    if (baseType == WorkBaseType.Building) {
+        const workProgress = building.getComponent("BuildingWorkProgress") as BuildingWorkProgressComponent;
+        if (workProgress) {
+            workProgress.removeWorkProgress(monsterId);
+        }
+    } else if (baseType == WorkBaseType.Production) {
+        const workProgress = building.getComponent("ProductionWorkProgress") as ProductionWorkProgressComponent;
+        if (workProgress) {
+            workProgress.removeWorkProgress(monsterId);
+        }
+    } else if (baseType == WorkBaseType.Rest) {
+        const workProgress = building.getComponent("RestWorkProgress") as RestWorkProgressComponent;
+        if (workProgress) {
+            workProgress.removeWorkProgress(monsterId);
+        }
+    } else if (baseType == WorkBaseType.Synthetic) {
+        const workProgress = building.getComponent("SyntheticWorkProgress") as SyntheticWorkProgressComponent;
+        if (workProgress) {
+            workProgress.removeWorkProgress(monsterId);
+        }
     }
 
     monsterPropertyComponent.stopWork();
@@ -241,108 +316,5 @@ export function processStopWork(world: World, avatarId: number, buildingId: numb
     const buildingPropertyComponent = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
     buildingPropertyComponent.removeWorkers(monsterId);
 
-    if (building.hasComponent("WorkProgress")) {
-        const workProgress = building.getComponent("WorkProgress") as WorkProgressComponent;
-        workProgress.removeWorkProgress(monsterId);
-        if (workProgress.getWorkProgressList().length == 0) {
-            building.removeComponent("WorkProgress");
-        }
-    }
-    return true;
-}
-
-export function processStartRest(world: World, avatarId: number, buildingId: number, monsterId: number): boolean {
-    const building = world.getEntitiesManager().getEntity(buildingId) as Building;
-    if (!building) {
-        log.info("建筑不存在", buildingId);
-        return false;
-    }
-
-    const avatar = world.getEntitiesManager().getEntity(avatarId) as Avatar;
-    if (!avatar) {
-        log.info("avatar不存在", avatarId);
-        return false;
-    }
-
-    const monster = world.getEntitiesManager().getEntity(monsterId) as Monster;
-    if (!monster) {
-        log.info("怪物不存在", monsterId);
-        return false;
-    }
-
-    // todo:暂时服用，后面将休息逻辑独立出来
-    if (!checkCanStartWork(monster, building, WorkType.Rest)) {
-        return false;
-    }
-
-    // 暂时复用
-    const buildingPropertyComponent = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
-    buildingPropertyComponent.addWorkers(monsterId);
-
-    const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
-    monsterPropertyComponent.startRest(buildingId, world.getCurrentVirtualTime());
-
-    createRestProgress(world, building, monsterId, monsterPropertyComponent.baseProperty);
-    return true;
-}
-
-function createRestProgress(world: World, building: Building, monsterId: number, monsterProperty: MonsterBaseProperty): RestProgressComponent | null {
-    let restProgress = null
-    if (building.hasComponent("RestProgress")) {
-        restProgress = building.getComponent("RestProgress") as RestProgressComponent;
-    } else {
-        restProgress = building.addComponent("RestProgress") as RestProgressComponent;
-    }
-    if (!restProgress) {
-        log.info("休息进度组件不存在", building.getId());
-        return null;
-    }
-    const progressData = restProgress.addRestProgress(monsterId, building.getId(), world.getCurrentVirtualTime());
-    if (!progressData) {
-        log.info("休息进度不存在", building.getId());
-        return null;
-    }
-    const buildingPropertyComponent = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
-    progressData.endTime = new Date(progressData.startTime.getTime() + calculateWorkTime(buildingPropertyComponent, monsterProperty, WorkType.Rest));
-    return restProgress;
-}
-
-export function processStopRest(world: World, avatarId: number, buildingId: number, monsterId: number, isComplete: boolean = false): boolean {
-    const building = world.getEntitiesManager().getEntity(buildingId) as Building;
-    if (!building) {
-        log.info("建筑不存在", buildingId);
-        return false;
-    }
-
-    const avatar = world.getEntitiesManager().getEntity(avatarId) as Avatar;
-    if (!avatar) {
-        log.info("avatar不存在", avatarId);
-        return false;
-    }
-
-    const monster = world.getEntitiesManager().getEntity(monsterId) as Monster;
-    if (!monster) {
-        log.info("怪物不存在", monsterId);
-        return false;
-    }
-
-    if (!monster.hasComponent("MonsterProperty")) {
-        log.info("怪物没有MonsterProperty组件", monsterId);
-        return false;
-    }
-    const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
-
-    monsterPropertyComponent.stopRest();
-
-    const buildingPropertyComponent = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
-    buildingPropertyComponent.removeWorkers(monsterId);
-
-    if (building.hasComponent("RestProgress")) {
-        const restProgress = building.getComponent("RestProgress") as RestProgressComponent;
-        restProgress.removeRestProgress(monsterId);
-        if (restProgress.getRestProgressList().length == 0) {
-            building.removeComponent("RestProgress");
-        }
-    }
     return true;
 }

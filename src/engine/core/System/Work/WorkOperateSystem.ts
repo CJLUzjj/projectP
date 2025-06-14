@@ -3,7 +3,7 @@ import { BaseSystem } from "../../Infra/Base/System/BaseSystem";
 import { World } from "../../Infra/World";
 import { BaseExcuteSystem } from "../../Infra/Base/System/BaseExcuteSystem";
 import { BaseEntity } from "../../Infra/Base/BaseEntity";
-import { processStartWork, processStopWork, processStartRest, processStopRest } from "../Utility/Work/Common";
+import { processStartWork, processStopWork} from "../Utility/Work/Common";
 import { MessageComponent } from "../../Component/Input/MessageComponent";
 import { MessageParams, MessageType } from "../../Interface/Common/MessageId";
 import { WorkType } from "../../Data/WorkData";
@@ -37,7 +37,7 @@ export class WorkOperateSystem extends BaseExcuteSystem {
             }
             const params = message.args as MessageParams[MessageType.START_WORK];
             const workType = params.workType as WorkType;
-            if (!processStartWork(this.world, params.avatarId, params.buildingId, workType, params.monsterId)) {
+            if (!processStartWork(this.world, params.avatarId, params.buildingId, workType, params.monsterId, params.position)) {
                 log.info("工作开始失败", params.avatarId, params.buildingId, params.workType, params.monsterId);
             }
             log.info("工作开始成功", params.avatarId, params.buildingId, params.workType, params.monsterId);

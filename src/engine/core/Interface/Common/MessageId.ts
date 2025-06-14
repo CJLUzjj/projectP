@@ -1,3 +1,5 @@
+import { Position } from "../../Data/common";
+
 /**
  * 消息类型枚举
  */
@@ -50,6 +52,7 @@ export interface MessageParams {
         buildingId: number;
         workType: string;
         monsterId: number;
+        position: Position;
     };
     [MessageType.STOP_WORK]: {
         avatarId: number;

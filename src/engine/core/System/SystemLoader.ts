@@ -2,7 +2,9 @@ import "./Building/BuildingOperateSystem";
 import "./Building/BuildingStateSystem";
 import "./Input/ProcessMessageSystem"
 import "./Work/WorkOperateSystem";
-import "./Work/WorkProgressUpdateSystem";
-import "./Work/RestProgressUpdateSystem";
 import "./Monster/MonsterOperateSystem";
 import "./Space/SpaceChangeSystem";
+import "./Work/ProductionWorkProgressSystem";
+import "./Work/BuildingWorkProgressSystem";
+import "./Work/SyntheticWorkProgressSystem";
+import "./Work/RestWorkProgressSystem";

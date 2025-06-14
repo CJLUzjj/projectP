@@ -66,3 +66,8 @@ export enum WorkBaseType {
     Rest = "Rest",
     Synthetic = "Synthetic",
 }
+
+export interface Position {
+    x: number;
+    y: number;
+}
