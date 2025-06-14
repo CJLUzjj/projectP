@@ -11,10 +11,22 @@ import { globalAvatar } from "./avatar";
 
 const kRoomSpacePath = "res://src/engine/platform/godot/sence/room_space.tscn";
 
+export enum ClickType {
+	NONE = "none",
+	ADD_BUILDING = "add_building",
+	REMOVE_BUILDING = "remove_building",
+	ADD_MONSTER = "add_monster",
+	REMOVE_MONSTER = "remove_monster",
+}
+
 export default class RoomSpace extends Node2D {
 	private entityId: number = 0;
+	private currentClickType: ClickType = ClickType.NONE;
 	private addBuildingPressed: boolean = false;
 	private removeBuildingPressed: boolean = false;
+	private addMonsterPressed: boolean = false;
+	private removeMonsterPressed: boolean = false;
+	private isButtonPressed: boolean = false;
 
 	// Called when the node enters the scene tree for the first time.
 	_ready(): void {
@@ -70,45 +82,71 @@ export default class RoomSpace extends Node2D {
 
 	_on_add_building_pressed(): void {
 		log.info("RoomSpace _on_add_building_pressed");
-		if (this.addBuildingPressed) {
-			this.addBuildingPressed = false;
-		} else {
-			this.addBuildingPressed = true;
-			this.removeBuildingPressed = false;
-		}
+		this.onClick(ClickType.ADD_BUILDING);
 	}
 
 	_on_remove_building_pressed(): void {
 		log.info("RoomSpace _on_remove_building_pressed");
-		if (this.removeBuildingPressed) {
-			this.removeBuildingPressed = false;
-		} else {
-			this.removeBuildingPressed = true;
-			this.addBuildingPressed = false;
-		}
+		this.onClick(ClickType.REMOVE_BUILDING);
 	}
 
+	_on_add_monster_pressed(): void {
+		log.info("RoomSpace _on_add_monster_pressed");
+		this.onClick(ClickType.ADD_MONSTER);
+	}
+
+	_on_remove_monster_pressed(): void {
+		log.info("RoomSpace _on_remove_monster_pressed");
+		this.onClick(ClickType.REMOVE_MONSTER);
+	}
+
+	onClick(clickType: ClickType): void {
+		if (clickType == this.currentClickType) {
+			this.currentClickType = ClickType.NONE;
+		}
+
+		this.currentClickType = clickType;
+	}
+
+	// todo: 输入和按钮输入存在优先级，需要处理
 	_input(event: InputEvent): void {
-		if (event instanceof InputEventMouseButton) {
-			log.info("RoomSpace _input", event);
-			if (event.button_index == MouseButton.MOUSE_BUTTON_LEFT) {
-				if (event.pressed && this.addBuildingPressed) {
-					if (globalAvatar == null) {
-						log.error("globalAvatar is null");
-						return;
-					}
-					log.info("position", event.position.x, event.position.y);
-					globalMessageService.pushMessage(
-						MessageType.ADD_BUILDING,
-						{
-							avatarId: globalAvatar.getEntityId(),
-							spaceId: this.entityId,
-							buildingType: "Farm",
-							x: event.position.x,
-							y: event.position.y,
-						}
-					);
+		if (event instanceof InputEventMouseButton && event.button_index == 1) { // 1 代表左键
+
+			if (event.pressed && this.currentClickType == ClickType.ADD_BUILDING) {
+				if (globalAvatar == null) {
+					log.error("globalAvatar is null");
+					return;
 				}
+				log.info("position", event.position.x, event.position.y);
+				globalMessageService.pushMessage(
+					MessageType.ADD_BUILDING,
+					{
+						avatarId: globalAvatar.getEntityId(),
+						spaceId: this.entityId,
+						buildingType: "Farm",
+						x: event.position.x,
+						y: event.position.y,
+					}
+				);
+			}
+			if (event.pressed && this.currentClickType == ClickType.ADD_MONSTER) {
+				if (globalAvatar == null) {
+					log.error("globalAvatar is null");
+					return;
+				}
+				log.info("position", event.position.x, event.position.y);
+				globalMessageService.pushMessage(
+					MessageType.ADD_MONSTER,
+					{
+						avatarId: globalAvatar.getEntityId(),
+						spaceId: this.entityId,
+						monsterType: "Globlin",
+						name: "Globlin",
+						level: 1,
+						x: event.position.x,
+						y: event.position.y,
+					}
+				);
 			}
 		}
 	}

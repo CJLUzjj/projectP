@@ -9,6 +9,7 @@ import { registerComponentToSence } from "../common/instantiation";
 import HallSpace from "./hall_space";
 import RoomSpace from "./room_space";
 import Building from "./building";
+import Monster from "./monster";
 
 export let globalMainScene: Node | null = null;
 
@@ -61,4 +62,5 @@ function initSyncService(): void {
 	registerComponentToSence("RoomProperty", RoomSpace.createSence);
 	registerComponentToSence("AvatarProperty", Avatar.createSence);
 	registerComponentToSence("BuildingProperty", Building.createSence);
+	registerComponentToSence("MonsterProperty", Monster.createSence);
 }

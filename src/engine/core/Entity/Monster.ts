@@ -12,6 +12,7 @@ export class Monster extends BaseEntity {
 
     init() {
         this.addComponent("MonsterProperty");
+        this.addComponent("Position");
     }
 
     // static createDefaultMonster(type: MonsterType, name: string, level: number, masterId: string): Monster {

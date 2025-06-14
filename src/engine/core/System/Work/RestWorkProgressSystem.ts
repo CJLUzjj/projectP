@@ -12,8 +12,8 @@ import { Building } from "../../Entity/Building";
 import { Avatar } from "../../Entity/Avatar";
 import { RestWorkProgressComponent } from "../../Component/Work/RestWorkProgressComponent";
 import { processFinishRestWork } from "../Utility/Work/RestWork";
-import { MonsterPropertyComponent } from "core/Component/Property/MonsterPropertyComponent";
-import { Monster } from "core/Entity/Monster";
+import { MonsterPropertyComponent } from "../../Component/Property/MonsterPropertyComponent";
+import { Monster } from "../../Entity/Monster";
 @System(SystemType.Execute)
 export class RestWorkProgressSystem extends BaseExcuteSystem {
     constructor(world: World) {

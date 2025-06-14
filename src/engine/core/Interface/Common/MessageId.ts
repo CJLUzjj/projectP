@@ -42,6 +42,8 @@ export interface MessageParams {
         monsterType: string;
         name: string;
         level: number;
+        x: number;
+        y: number;
     };
     [MessageType.REMOVE_MONSTER]: {
         avatarId: number;

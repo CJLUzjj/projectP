@@ -4,6 +4,7 @@ declare module "godot" {
             ColorRect: ColorRect<{}>;
             AddBuilding: Button<{}>;
             RemoveBuilding: Button<{}>;
+            AddMonster: Button<{}>;
         };
     }
 }

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://by6vg2875dwgn"]
 
-[ext_resource type="Script" path="res://src/engine/platform/godot/script/room_space.ts" id="1_bqv4y"]
+[ext_resource type="Script" uid="uid://dbfqa6sb2mi4c" path="res://src/engine/platform/godot/script/room_space.ts" id="1_bqv4y"]
 
 [node name="room_space" type="Node2D"]
 script = ExtResource("1_bqv4y")
@@ -26,5 +26,13 @@ offset_right = 152.0
 offset_bottom = 133.0
 text = "删除建筑"
 
+[node name="AddMonster" type="Button" parent="."]
+offset_left = 66.0
+offset_top = 156.0
+offset_right = 152.0
+offset_bottom = 191.0
+text = "添加帕鲁"
+
 [connection signal="pressed" from="AddBuilding" to="." method="_on_add_building_pressed"]
 [connection signal="pressed" from="RemoveBuilding" to="." method="_on_remove_building_pressed"]
+[connection signal="pressed" from="AddMonster" to="." method="_on_add_monster_pressed"]

@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://drsagxkw56p1a"]
+
+[ext_resource type="Script" uid="uid://cjdk8ilhypc4v" path="res://src/engine/platform/godot/script/monster.ts" id="1_c7obd"]
+
+[node name="Sprite2D" type="Sprite2D"]
+position = Vector2(330, 129)
+scale = Vector2(0.761738, -1.67809)
+script = ExtResource("1_c7obd")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = -1
+anchor_left = 490.0
+anchor_top = 288.0
+anchor_right = 490.0
+anchor_bottom = 288.0
+offset_left = -512.317
+offset_top = -308.261
+offset_right = -472.317
+offset_bottom = -268.261
+color = Color(0.996604, 0.772201, 0.598879, 1)

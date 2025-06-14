@@ -10,6 +10,7 @@ import { Monster } from "../../Entity/Monster";
 import { MonsterPropertyComponent } from "../../Component/Property/MonsterPropertyComponent";
 import { MonsterListComponent } from "../../Component/List/MonsterListComponent";
 import { log } from "../../Interface/Service/LogService";
+import { PositionComponent } from "../../Component/PositionComponent";
 
 @System(SystemType.Execute)
 export class MonsterOperateSystem extends BaseExcuteSystem {
@@ -55,6 +56,10 @@ export class MonsterOperateSystem extends BaseExcuteSystem {
                 monsterPropertyComponent.workProperty = monsterData.workProperty;
                 monsterPropertyComponent.masterId = monsterData.masterId;
                 monsterPropertyComponent.status = monsterData.status;
+            }
+            if (monster.hasComponent("Position")) {
+                const positionComponent = monster.getComponent("Position") as PositionComponent;
+                positionComponent.setPosition(params.x, params.y);
             }
 
             monster.addComponent("Owner", avatarId);

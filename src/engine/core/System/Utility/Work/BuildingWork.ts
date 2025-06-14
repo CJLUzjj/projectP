@@ -1,4 +1,4 @@
-import { BuildingWorkProgressComponent } from "core/Component/Work/BuildingWorkProgressComponent";
+import { BuildingWorkProgressComponent } from "../../../Component/Work/BuildingWorkProgressComponent";
 import { MonsterBaseProperty } from "../../../Data/MonsterData";
 import { BuildingWorkProgressData, WorkType } from "../../../Data/WorkData";
 import { Building } from "../../../Entity/Building";
