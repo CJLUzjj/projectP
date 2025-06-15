@@ -35,7 +35,7 @@ export class EntitiesManager {
      * @param entity 要注册的实体
      */
     public registerEntity(entity: BaseEntity): void {
-        log.info("registerEntity", entity.getId());
+        // log.info("registerEntity", entity.getId());
         this.entities.set(entity.getId(), entity);
     }
 

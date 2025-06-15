@@ -24,25 +24,26 @@ import { RestWorkProgressComponent } from "../../../Component/Work/RestWorkProgr
 import { SyntheticWorkProgressComponent } from "../../../Component/Work/SyntheticWorkProgressComponent";
 export const workIndex: Map<WorkType, WorkBaseType> = new Map();
 
-function buildIndex() {
-    for (const workType in ProductionWorkConfig) {
+export function buildIndex() {
+    for (const [workType, workConfig] of ProductionWorkConfig) {
         workIndex.set(workType as WorkType, WorkBaseType.Production);
     }
 
-    for (const workType in BuildingWorkConfig) {
+    for (const [workType, workConfig] of BuildingWorkConfig) {
         workIndex.set(workType as WorkType, WorkBaseType.Building);
     }
     
-    for (const workType in RestWorkConfig) {
+    for (const [workType, workConfig] of  RestWorkConfig) {
+        log.info("workType", workType, workConfig);
         workIndex.set(workType as WorkType, WorkBaseType.Rest);
     }
 
-    for (const workType in SyntheticWorkConfig) {
+    for (const [workType, workConfig] of  SyntheticWorkConfig) {
         workIndex.set(workType as WorkType, WorkBaseType.Synthetic);
     }
-}
 
-buildIndex();
+    log.info("workIndex加载完成", workIndex);
+}
 
 export function getMonsterWorkEfficiency(monsterType: MonsterType, workType: WorkType): number {
     const abilities = MonsterWorkAbilityConfig.get(monsterType);

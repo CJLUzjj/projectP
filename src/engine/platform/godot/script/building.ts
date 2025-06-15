@@ -1,7 +1,7 @@
 import { BaseComponent } from "../../../core/Infra/Base/BaseComponent";
 import { Node2D, Vector2, Sprite2D } from "godot";
 import { log } from "../../../core/Interface/Service/LogService";
-import { globalMainScene } from "./main";
+import { globalMainScene } from "./space/main";
 import { SyncCallback } from "../service/syncService";
 import { instantiate_asset } from "../common/instantiation";
 import { PositionComponent } from "../../../core/Component/PositionComponent";

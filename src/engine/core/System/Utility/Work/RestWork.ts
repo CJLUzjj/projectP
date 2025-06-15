@@ -12,10 +12,10 @@ import { Position } from "../../../Data/common";
 
 export function createRestWorkProgress(world: World, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, position: Position): void {
     let workProgress = null
-    if (building.hasComponent("RestWork")) {
-        workProgress = building.getComponent("RestWork") as RestWorkProgressComponent;
+    if (building.hasComponent("RestWorkProgress")) {
+        workProgress = building.getComponent("RestWorkProgress") as RestWorkProgressComponent;
     } else {
-        workProgress = building.addComponent("RestWork") as RestWorkProgressComponent;
+        workProgress = building.addComponent("RestWorkProgress") as RestWorkProgressComponent;
     }
     if (!workProgress) {
         log.info("工作进度组件不存在", building.getId());

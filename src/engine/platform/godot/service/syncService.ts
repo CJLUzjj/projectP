@@ -41,7 +41,7 @@ export class GodotPropertySyncService extends PropertySyncService {
         if (syncCallback) {
             syncCallback.syncCallback(component);
         }
-        log.info("syncComponent", component.owner.getId(), component.getComponentName());
+        // log.info("syncComponent", component.owner.getId(), component.getComponentName());
     }
 
     public onAddComponent(component: BaseComponent) {

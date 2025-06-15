@@ -5,6 +5,7 @@ declare module "godot" {
             AddBuilding: Button<{}>;
             RemoveBuilding: Button<{}>;
             AddMonster: Button<{}>;
+            room_input: Node<{}>;
         };
     }
 }

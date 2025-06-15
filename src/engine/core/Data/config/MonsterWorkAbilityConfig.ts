@@ -8,7 +8,8 @@ const monsterWorkConfig = {
         { "workType": "Mining", "efficiency": 75 },
         { "workType": "Transport", "efficiency": 80 },
         { "workType": "Crafting", "efficiency": 60 },
-        { "workType": "Rest", "efficiency": 100 }
+        { "workType": "Rest", "efficiency": 100 },
+        { "workType": "Farming", "efficiency": 100 }
     ],
     
     "Orc": [

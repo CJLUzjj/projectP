@@ -1,15 +1,15 @@
-/// <reference path="../../../../../typings/godot3.gen.d.ts" />
+/// <reference path="../../../../../../typings/godot3.gen.d.ts" />
 import { Node } from "godot";
-import { GodotPropertySyncService } from "../service/syncService";
-import { setGlobalPropertySyncService } from "../../../core/Interface/Service/PropertySyncService";
-import { GlobalGameManager } from "../../../core/Infra/GlobalGameManager";
-import Avatar from "./avatar";
-import { log } from "../../../core/Interface/Service/LogService";
-import { registerComponentToSence } from "../common/instantiation";
+import { GodotPropertySyncService } from "../../service/syncService";
+import { setGlobalPropertySyncService } from "../../../../core/Interface/Service/PropertySyncService";
+import { GlobalGameManager } from "../../../../core/Infra/GlobalGameManager";
+import Avatar from "../avatar";
+import { log } from "../../../../core/Interface/Service/LogService";
+import { registerComponentToSence } from "../../common/instantiation";
 import HallSpace from "./hall_space";
 import RoomSpace from "./room_space";
-import Building from "./building";
-import Monster from "./monster";
+import Building from "../building";
+import Monster from "../monster";
 
 export let globalMainScene: Node | null = null;
 

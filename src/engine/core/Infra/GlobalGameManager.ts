@@ -7,6 +7,7 @@ import { World } from "./World";
 import { globalSaveGameService, SaveGameService } from "../Interface/Service/SaveGameService";
 import { SerializationHelper } from "./SerializationHelper";
 import { log } from "../Interface/Service/LogService";
+import { buildIndex } from "../System/Utility/Work/Common";
 
 export class GlobalGameManager {
     private static instance: GlobalGameManager;
@@ -21,6 +22,7 @@ export class GlobalGameManager {
         this.isStart = false;
         this.gameLoop = null;
         this.worlds = [];
+        this.initialize();
     }
 
     public static getInstance(): GlobalGameManager {
@@ -32,9 +34,14 @@ export class GlobalGameManager {
 
     public initialize(): void {
         // 游戏管理器初始化
+        buildIndex();
     }
 
     public startGame(): void {
+        if (this.isStart) {
+            return;
+        }
+
         for (const world of this.worlds) {
             world.start();
         }

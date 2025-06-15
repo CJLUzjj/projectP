@@ -34,10 +34,10 @@ export function createSyntheticWorkProgress(world: World, avatar: Avatar, buildi
         }
     }
     let workProgress = null
-    if (building.hasComponent("SyntheticWork")) {
-        workProgress = building.getComponent("SyntheticWork") as SyntheticWorkProgressComponent;
+    if (building.hasComponent("SyntheticWorkProgress")) {
+        workProgress = building.getComponent("SyntheticWorkProgress") as SyntheticWorkProgressComponent;
     } else {
-        workProgress = building.addComponent("SyntheticWork") as SyntheticWorkProgressComponent;
+        workProgress = building.addComponent("SyntheticWorkProgress") as SyntheticWorkProgressComponent;
     }
     if (!workProgress) {
         log.info("工作进度组件不存在", building.getId());

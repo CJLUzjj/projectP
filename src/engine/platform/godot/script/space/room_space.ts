@@ -1,13 +1,13 @@
 // <reference path="../../../../../typings/godot7.gen.d.ts" />
 import { InputEvent, InputEventMouseButton, MouseButton, Node2D } from "godot";
 import { globalMainScene } from "./main";
-import { log } from "../../../core/Interface/Service/LogService";
-import { SyncCallback } from "../service/syncService";
-import { instantiate_asset } from "../common/instantiation";
-import { BaseComponent } from "../../../core/Infra/Base/BaseComponent";
-import { globalMessageService, MessageService } from "../../../core/Interface/Service/MessageService";
-import { MessageType } from "../../../core/Interface/Common/MessageId";
-import { globalAvatar } from "./avatar";
+import { log } from "../../../../core/Interface/Service/LogService";
+import { SyncCallback } from "../../service/syncService";
+import { instantiate_asset } from "../../common/instantiation";
+import { BaseComponent } from "../../../../core/Infra/Base/BaseComponent";
+import { globalMessageService, MessageService } from "../../../../core/Interface/Service/MessageService";
+import { MessageType } from "../../../../core/Interface/Common/MessageId";
+import { globalAvatar } from "../avatar";
 
 const kRoomSpacePath = "res://src/engine/platform/godot/sence/room_space.tscn";
 
@@ -39,6 +39,18 @@ export default class RoomSpace extends Node2D {
 
 	setEntityId(entityId: number): void {
 		this.entityId = entityId;
+	}
+
+	getEntityId(): number {
+		return this.entityId;
+	}
+
+	getCurrentClickType(): ClickType {
+		return this.currentClickType;
+	}
+
+	setCurrentClickType(clickType: ClickType): void {
+		this.currentClickType = clickType;
 	}
 
 	onComponentChanged(component: BaseComponent): void {
@@ -103,51 +115,8 @@ export default class RoomSpace extends Node2D {
 	onClick(clickType: ClickType): void {
 		if (clickType == this.currentClickType) {
 			this.currentClickType = ClickType.NONE;
-		}
-
-		this.currentClickType = clickType;
-	}
-
-	// todo: 输入和按钮输入存在优先级，需要处理
-	_input(event: InputEvent): void {
-		if (event instanceof InputEventMouseButton && event.button_index == 1) { // 1 代表左键
-
-			if (event.pressed && this.currentClickType == ClickType.ADD_BUILDING) {
-				if (globalAvatar == null) {
-					log.error("globalAvatar is null");
-					return;
-				}
-				log.info("position", event.position.x, event.position.y);
-				globalMessageService.pushMessage(
-					MessageType.ADD_BUILDING,
-					{
-						avatarId: globalAvatar.getEntityId(),
-						spaceId: this.entityId,
-						buildingType: "Farm",
-						x: event.position.x,
-						y: event.position.y,
-					}
-				);
-			}
-			if (event.pressed && this.currentClickType == ClickType.ADD_MONSTER) {
-				if (globalAvatar == null) {
-					log.error("globalAvatar is null");
-					return;
-				}
-				log.info("position", event.position.x, event.position.y);
-				globalMessageService.pushMessage(
-					MessageType.ADD_MONSTER,
-					{
-						avatarId: globalAvatar.getEntityId(),
-						spaceId: this.entityId,
-						monsterType: "Globlin",
-						name: "Globlin",
-						level: 1,
-						x: event.position.x,
-						y: event.position.y,
-					}
-				);
-			}
+		} else {
+			this.currentClickType = clickType;
 		}
 	}
 }

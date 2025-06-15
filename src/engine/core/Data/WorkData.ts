@@ -6,14 +6,11 @@ export enum WorkType {
     Mining = "Mining",           // 挖矿
     Logging = "Logging",         // 伐木
     Farming = "Farming",         // 农耕
-    Construction = "Construction", // 建造
-    Crafting = "Crafting",       // 制作
-    Cooking = "Cooking",         // 烹饪
-    Transport = "Transport",     // 运输
-    Guarding = "Guarding",       // 守卫
-    Research = "Research",       // 研究
-    Hunting = "Hunting",         // 狩猎
-    Rest = "Rest"                // 休息
+    BuildFarm = "BuildFarm",     // 建造农场
+    Sleep = "Sleep",             // 休息
+    Soak = "Soak",               // 泡澡
+    BuildGun = "BuildGun",       // 建造枪
+    BuildSword = "BuildSword",   // 建造剑
 }
 
 // 工作能力接口

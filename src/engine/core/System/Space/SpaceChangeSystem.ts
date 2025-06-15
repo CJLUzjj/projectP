@@ -39,7 +39,8 @@ export class SpaceChangeSystem extends BaseExcuteSystem {
 
             this.world.getEntitiesManager().removeEntity(leaveEntity.getId());
 
-            this.world.getEntitiesManager().createEntity(RoomSpace);
+            const space = this.world.getEntitiesManager().createEntity(RoomSpace);
+            this.world.setSpaceId(space.getId());
         }
     }
 }

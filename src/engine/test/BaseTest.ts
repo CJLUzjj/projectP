@@ -35,7 +35,7 @@ class TestPropertySyncService extends PropertySyncService {
         if (componentMap) {
             componentMap.set(component.getComponentName(), component);
         }
-        log.info("syncComponent", component.owner.getId(), component.getComponentName());
+        // log.info("syncComponent", component.owner.getId(), component.getComponentName());
     }
 
     public onAddComponent(component: BaseComponent) {

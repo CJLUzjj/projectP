@@ -14,10 +14,10 @@ export function createProductionWorkProgress(
     world: World, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, position: Position)
     : void {
         let workProgress = null
-        if (building.hasComponent("ProductionWork")) {
-            workProgress = building.getComponent("ProductionWork") as ProductionWorkProgressComponent;
+        if (building.hasComponent("ProductionWorkProgress")) {
+            workProgress = building.getComponent("ProductionWorkProgress") as ProductionWorkProgressComponent;
         } else {
-            workProgress = building.addComponent("ProductionWork") as ProductionWorkProgressComponent;
+            workProgress = building.addComponent("ProductionWorkProgress") as ProductionWorkProgressComponent;
         }
         if (!workProgress) {
             log.info("工作进度组件不存在", building.getId());

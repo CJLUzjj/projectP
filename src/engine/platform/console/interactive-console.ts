@@ -14,9 +14,12 @@ import { MonsterListComponent } from "../../core/Component/List/MonsterListCompo
 import { log } from "../../core/Interface/Service/LogService";
 import { BaseEntity } from "../../core/Infra/Base/BaseEntity";
 import { globalSaveGameService } from "../../core/Interface/Service/SaveGameService";
+import { RoomPropertyComponent } from '../../core/Component/Property/RoomPropertyComponent';
+import { AvatarPropertyComponent } from '../../core/Component/Property/AvatarPropertyComponent';
 
 // 全局数据存储，用于测试和查询
 let data: Map<number, Map<string, BaseComponent>> = new Map();
+let console_app: InteractiveGameConsole;
 
 // 测试用的PropertySyncService实现
 class TestPropertySyncService extends PropertySyncService {
@@ -31,7 +34,7 @@ class TestPropertySyncService extends PropertySyncService {
     }
 
     public onSyncComponent(component: BaseComponent) {
-        log.info("syncComponent", component.owner.getId(), component.getComponentName());
+        // log.info("syncComponent", component.owner.getId(), component.getComponentName());
     }
 
     public onAddComponent(component: BaseComponent) {
@@ -41,6 +44,16 @@ class TestPropertySyncService extends PropertySyncService {
             componentMap.set(component.getComponentName(), component);
         }
         log.info("addComponent", component.owner.getId(), component.getComponentName());
+
+        if (component.getComponentName() == "RoomProperty") {
+            const roomProperty = component as RoomPropertyComponent;
+            console_app.spaceId = roomProperty.owner.getId();
+        }
+
+        if (component.getComponentName() == "AvatarProperty") {
+            const avatarProperty = component as AvatarPropertyComponent;
+            console_app.avatarId = avatarProperty.owner.getId();
+        }
     }
 
     public onRemoveComponent(component: BaseComponent) {
@@ -56,8 +69,8 @@ class TestPropertySyncService extends PropertySyncService {
 class InteractiveGameConsole {
     private rl: readline.Interface;
     private worldId: number = 0;
-    private spaceId: number = 0;
-    private avatarId: number = 0;
+    public spaceId: number = 0;
+    public avatarId: number = 0;
     private propertySyncService: TestPropertySyncService;
     private gameStarted: boolean = false;
     private isInit: boolean = false;
@@ -142,14 +155,6 @@ class InteractiveGameConsole {
                     this.stopWork(args[0], args[1]);
                     break;
                 
-                case 'startrest':
-                    this.startRest(args[0], args[1]);
-                    break;
-                
-                case 'stoprest':
-                    this.stopRest(args[0], args[1]);
-                    break;
-                
                 case 'save':
                     this.saveGame(args[0]);
                     break;
@@ -224,8 +229,6 @@ class InteractiveGameConsole {
         log.info("⚒️ 工作操作:");
         log.info("  startwork <monsterId> <buildingId> <workType> - 开始工作");
         log.info("  stopwork <monsterId> <buildingId> - 停止工作");
-        log.info("  startrest <monsterId> <buildingId> - 开始休息");
-        log.info("  stoprest <monsterId> <buildingId> - 停止休息");
         log.info("");
         log.info("💾 存档操作:");
         log.info("  save [filename]      - 保存游戏");
@@ -270,13 +273,22 @@ class InteractiveGameConsole {
             return;
         }
 
+        if (this.gameStarted) {
+            log.info("❌ 游戏已启动");
+            return;
+        }
+
         try {
             log.info("🚀 正在启动游戏...");
             const world = GlobalGameManager.getInstance().getWorld(this.worldId);
-            world.start();
+            GlobalGameManager.getInstance().startGame();
+            if (!world.getIsLoad()) {
+                globalMessageService.pushMessage(MessageType.ENTER_ROOM, {
+                    leaveEntityId: world.getSpaceId()
+                });
+            }
             this.avatarId = world.getAvatarId();
             this.spaceId = world.getSpaceId();
-            GlobalGameManager.getInstance().startGame();
             this.gameStarted = true;
             log.info("✅ 游戏启动成功！");
         } catch (error) {
@@ -391,7 +403,9 @@ class InteractiveGameConsole {
             globalMessageService.pushMessage(MessageType.ADD_BUILDING, {
                 avatarId: this.avatarId,
                 spaceId: this.spaceId,
-                buildingType: type
+                buildingType: type,
+                x: 0,
+                y: 0
             });
 
             log.info(`✅ ${buildingType} 建筑添加成功！`);
@@ -465,7 +479,9 @@ class InteractiveGameConsole {
                 spaceId: this.spaceId,
                 monsterType: type,
                 name: name,
-                level: level
+                level: level,
+                x: 0,
+                y: 0
             });
 
             log.info(`✅ ${monsterType} 怪物 "${name}" 添加成功！`);
@@ -540,7 +556,9 @@ class InteractiveGameConsole {
                 avatarId: this.avatarId,
                 buildingId: buildingId,
                 workType: type,
-                monsterId: monsterId
+                monsterId: monsterId,
+                x: 0,
+                y: 0
             });
 
             log.info(`✅ 怪物 ${monsterId} 开始 ${workType} 工作成功！`);
@@ -583,74 +601,6 @@ class InteractiveGameConsole {
         }
     }
 
-    private startRest(monsterIdStr?: string, buildingIdStr?: string): void {
-        if (!this.gameStarted) {
-            log.info("❌ 请先初始化并启动游戏");
-            return;
-        }
-
-        if (!monsterIdStr || !buildingIdStr) {
-            log.info("❌ 请指定完整参数: startrest <monsterId> <buildingId>");
-            return;
-        }
-
-        const monsterId = parseInt(monsterIdStr);
-        const buildingId = parseInt(buildingIdStr);
-        
-        if (isNaN(monsterId) || isNaN(buildingId)) {
-            log.info("❌ 怪物ID和建筑ID必须是数字");
-            return;
-        }
-
-        try {
-            log.info(`😴 正在安排怪物 ${monsterId} 在建筑 ${buildingId} 开始休息...`);
-
-            globalMessageService.pushMessage(MessageType.START_REST, {
-                avatarId: this.avatarId,
-                buildingId: buildingId,
-                monsterId: monsterId
-            });
-
-            log.info(`✅ 怪物 ${monsterId} 开始休息成功！`);
-        } catch (error) {
-            log.info(`❌ 开始休息失败: ${error}`);
-        }
-    }
-
-    private stopRest(monsterIdStr?: string, buildingIdStr?: string): void {
-        if (!this.gameStarted) {
-            log.info("❌ 请先初始化并启动游戏");
-            return;
-        }
-
-        if (!monsterIdStr || !buildingIdStr) {
-            log.info("❌ 请指定完整参数: stoprest <monsterId> <buildingId>");
-            return;
-        }
-
-        const monsterId = parseInt(monsterIdStr);
-        const buildingId = parseInt(buildingIdStr);
-        
-        if (isNaN(monsterId) || isNaN(buildingId)) {
-            log.info("❌ 怪物ID和建筑ID必须是数字");
-            return;
-        }
-
-        try {
-            log.info(`⏰ 正在停止怪物 ${monsterId} 在建筑 ${buildingId} 的休息...`);
-
-            globalMessageService.pushMessage(MessageType.STOP_REST, {
-                avatarId: this.avatarId,
-                buildingId: buildingId,
-                monsterId: monsterId
-            });
-
-            log.info(`✅ 怪物 ${monsterId} 停止休息成功！`);
-        } catch (error) {
-            log.info(`❌ 停止休息失败: ${error}`);
-        }
-    }
-
     private saveGame(filename?: string): void {
         if (!this.gameStarted) {
             log.info("❌ 请先初始化并启动游戏");
@@ -681,6 +631,7 @@ class InteractiveGameConsole {
         try {
             log.info(`📁 正在加载游戏: ${filename}...`);
             globalSaveGameService.loadGame(filename);
+            this.worldId = GlobalGameManager.getInstance().getWorlds()[0].getId();
             this.isInit = true;
             log.info(`✅ 游戏 ${filename} 加载成功！`);
         } catch (error) {
@@ -813,7 +764,7 @@ class InteractiveGameConsole {
 
 // 启动控制台
 function main() {
-    const console_app = new InteractiveGameConsole();
+    console_app = new InteractiveGameConsole();
     console_app.start();
 }
 

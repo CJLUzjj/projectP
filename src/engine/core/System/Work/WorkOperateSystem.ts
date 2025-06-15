@@ -37,7 +37,7 @@ export class WorkOperateSystem extends BaseExcuteSystem {
             }
             const params = message.args as MessageParams[MessageType.START_WORK];
             const workType = params.workType as WorkType;
-            if (!processStartWork(this.world, params.avatarId, params.buildingId, workType, params.monsterId, params.position)) {
+            if (!processStartWork(this.world, params.avatarId, params.buildingId, workType, params.monsterId, {x: params.x, y: params.y})) {
                 log.info("工作开始失败", params.avatarId, params.buildingId, params.workType, params.monsterId);
             }
             log.info("工作开始成功", params.avatarId, params.buildingId, params.workType, params.monsterId);

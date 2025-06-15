@@ -14,8 +14,6 @@ export enum MessageType {
 
     START_WORK = 2001,
     STOP_WORK = 2002,
-    START_REST = 2003,
-    STOP_REST = 2004,
 }
 
 /**
@@ -54,19 +52,10 @@ export interface MessageParams {
         buildingId: number;
         workType: string;
         monsterId: number;
-        position: Position;
+        x: number;
+        y: number;
     };
     [MessageType.STOP_WORK]: {
-        avatarId: number;
-        buildingId: number;
-        monsterId: number;
-    };
-    [MessageType.START_REST]: {
-        avatarId: number;
-        buildingId: number;
-        monsterId: number;
-    };
-    [MessageType.STOP_REST]: {
         avatarId: number;
         buildingId: number;
         monsterId: number;

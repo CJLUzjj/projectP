@@ -2,8 +2,8 @@ import { SyntheticWork, WorkType } from "../../../Data/WorkData"
 import { JsonMapParser } from "../../../Util/JsonMapParser"
 
 const syntheticWorkData = {
-    "Gun": {
-        "workType": "Synthetic",
+    "BuildGun": {
+        "workType": "BuildGun",
         "baseTime": 30,
         "requiredLevel": 1,
         "stamminaCost": 20,
@@ -17,8 +17,8 @@ const syntheticWorkData = {
         ]
     },
 
-    "Sword": {
-        "workType": "Synthetic",
+    "BuildSword": {
+        "workType": "BuildSword",
         "baseTime": 30,
         "requiredLevel": 1,
         "stamminaCost": 20,

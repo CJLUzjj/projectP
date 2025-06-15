@@ -3,6 +3,8 @@ import { ComponentRegistry } from "../ComponentRegistry";
 import { BaseComponent } from "./BaseComponent";
 import { World } from "../World";
 import { createObserver, globalPropertySyncService, PropertySyncService } from "../../Interface/Service/PropertySyncService";
+import { log } from "../../Interface/Service/LogService";
+import { BackpackComponent } from "../../Component/BackpackComponent";
 
 export class BaseEntity {
     private id: number;
@@ -152,6 +154,11 @@ export class BaseEntity {
                     }
                     
                     this.components.set(componentName, component);
+                    //log.info("zjjtest deserialize", componentName, componentData, component);
+                    if (componentName == "Backpack") {
+                        const backpack = component as BackpackComponent;
+                        log.info("zjjtest backpack", backpack.getItemBackpack().getAllItems());
+                    }
                 }
             }
         } catch (error) {

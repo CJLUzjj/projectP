@@ -94,6 +94,14 @@ export class World {
         return this.spaceId;
     }
 
+    public setSpaceId(spaceId: number) {
+        this.spaceId = spaceId;
+    }
+
+    public getIsLoad(): boolean {
+        return this.isLoad;
+    }
+
     static getDefaultWorld(): World {
         if (!this.defaultWorld) {
             this.defaultWorld = new World(0);
@@ -117,7 +125,6 @@ export class World {
         }
 
         serializationData.entities = this.entitiesManager.serialize();
-        this.isLoad = true;
         return serializationData;
     }
 
@@ -127,6 +134,7 @@ export class World {
             this.id = serializationData.id;
             this.currentVirtualTime = serializationData.currentVirtualTime;
             this.entitiesManager.deserialize(serializationData.entities);
+            this.isLoad = true;
         } catch (error) {
             console.error('反序列化Entity时发生错误:', error);
             throw new Error(`反序列化失败: ${error}`);

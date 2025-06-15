@@ -62,7 +62,6 @@ export class SystemsManager {
             log.info(`注册输入系统: ${systemInfo.constructor.name}`);
         }
 
-        log.info("装饰器系统注册完成!");
     }
 
     /**

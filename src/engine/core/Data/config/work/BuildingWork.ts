@@ -3,8 +3,8 @@ import { BuildingWork, WorkType } from "../../../Data/WorkData";
 import { JsonMapParser } from "../../../Util/JsonMapParser";
 
 const buildingWorkData = {
-    "Farm": {
-        "workType": "Building",
+    "BuildFarm": {
+        "workType": "BuildFarm",
         "baseTime": 30,
         "requiredLevel": 1,
         "stamminaCost": 20,

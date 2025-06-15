@@ -1,11 +1,11 @@
-import { BaseComponent } from "../../../core/Infra/Base/BaseComponent";
+import { BaseComponent } from "../../../../core/Infra/Base/BaseComponent";
 import { Node2D } from "godot";
 import { globalMainScene } from "./main";
-import { instantiate_asset } from "../common/instantiation";
-import { SyncCallback } from "../service/syncService";
-import { log } from "../../../core/Interface/Service/LogService";
-import { globalMessageService } from "../../../core/Interface/Service/MessageService";
-import { MessageType } from "../../../core/Interface/Common/MessageId";
+import { instantiate_asset } from "../../common/instantiation";
+import { SyncCallback } from "../../service/syncService";
+import { log } from "../../../../core/Interface/Service/LogService";
+import { globalMessageService } from "../../../../core/Interface/Service/MessageService";
+import { MessageType } from "../../../../core/Interface/Common/MessageId";
 
 const kHallSpacePath = "res://src/engine/platform/godot/sence/hall_space.tscn";
 

@@ -37,7 +37,7 @@ export class MonsterOperateSystem extends BaseExcuteSystem {
             if (!message) {
                 break;
             }
-            log.info("processAddMonster", message);
+            // log.info("processAddMonster", message);
             const params = message.args as MessageParams[MessageType.ADD_MONSTER];
             const avatarId = params.avatarId;
             const spaceId = params.spaceId;
