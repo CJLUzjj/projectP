@@ -11,6 +11,7 @@ import { MonsterPropertyComponent } from "../../Component/Property/MonsterProper
 import { MonsterListComponent } from "../../Component/List/MonsterListComponent";
 import { log } from "../../Interface/Service/LogService";
 import { PositionComponent } from "../../Component/PositionComponent";
+import { HexMapComponent } from "../../Component/Map/HexMapComponent";
 
 @System(SystemType.Execute)
 export class MonsterOperateSystem extends BaseExcuteSystem {
@@ -47,6 +48,12 @@ export class MonsterOperateSystem extends BaseExcuteSystem {
 
             // todo 检查是否可以添加怪物（空间限制、资源消耗等）
 
+            const space = this.world.getEntitiesManager().getEntity(spaceId);
+            if (!space) {
+                log.info("空间不存在", spaceId);
+                continue;
+            }
+
             const monster = this.world.getEntitiesManager().createEntity(Monster);
             if (monster.hasComponent("MonsterProperty")) {
                 const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
@@ -59,18 +66,16 @@ export class MonsterOperateSystem extends BaseExcuteSystem {
             }
             if (monster.hasComponent("Position")) {
                 const positionComponent = monster.getComponent("Position") as PositionComponent;
-                positionComponent.setPosition(params.x, params.y);
+                const hexMapComponent = space.getComponent("HexMap") as HexMapComponent;
+                if (!hexMapComponent) {
+                    log.info("空间不存在HexMap组件", spaceId);
+                    continue;
+                }
+                positionComponent.setPosition(params.x, params.y, hexMapComponent.getHexSize());
             }
 
             monster.addComponent("Owner", avatarId);
 
-            const space = this.world.getEntitiesManager().getEntity(spaceId);
-            if (!space) {
-                log.info("空间不存在", spaceId);
-                // 删除刚创建的怪物
-                this.world.getEntitiesManager().removeEntity(monster.getId());
-                continue;
-            }
             // if (space.hasComponent("MonsterList")) {
             //     const monsterListComponent = space.getComponent("MonsterList") as MonsterListComponent;
             //     monsterListComponent.addMonster(monster.getId().toString());

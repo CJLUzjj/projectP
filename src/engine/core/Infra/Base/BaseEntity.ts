@@ -107,14 +107,19 @@ export class BaseEntity {
         
         // 序列化所有组件
         for (const [componentName, component] of components) {
-            // 获取组件的所有可枚举属性，排除循环引用属性
-            const componentData: any = {};
-            for (const key in component) {
-                if (key !== 'world' && key !== 'owner' && component.hasOwnProperty(key)) {
-                    componentData[key] = (component as any)[key];
+            let componentData: any;
+            // 如果组件有 serialize 方法，优先调用
+            if (typeof (component as any).serialize === 'function') {
+                componentData = (component as any).serialize();
+            } else {
+                // 获取组件的所有可枚举属性，排除循环引用属性
+                componentData = {};
+                for (const key in component) {
+                    if (key !== 'world' && key !== 'owner' && component.hasOwnProperty(key)) {
+                        componentData[key] = (component as any)[key];
+                    }
                 }
             }
-            
             serializationData.components.push({
                 name: componentName,
                 data: componentData
@@ -146,19 +151,18 @@ export class BaseEntity {
                 // 创建组件实例
                 const component = ComponentRegistry.getInstance().createComponent(componentName, this);
                 if (component) {
-                    // 恢复组件数据，排除循环引用属性（这些会在创建时自动设置）
-                    for (const key in componentData) {
-                        if (key !== "owner" && componentData.hasOwnProperty(key)) {
-                            (component as any)[key] = componentData[key];
+                    // 如果组件有 deserialize 方法，优先调用
+                    if (typeof (component as any).deserialize === 'function') {
+                        (component as any).deserialize(componentData);
+                    } else {
+                        // 恢复组件数据，排除循环引用属性（这些会在创建时自动设置）
+                        for (const key in componentData) {
+                            if (key !== "owner" && componentData.hasOwnProperty(key)) {
+                                (component as any)[key] = componentData[key];
+                            }
                         }
                     }
-                    
                     this.components.set(componentName, component);
-                    //log.info("zjjtest deserialize", componentName, componentData, component);
-                    if (componentName == "Backpack") {
-                        const backpack = component as BackpackComponent;
-                        log.info("zjjtest backpack", backpack.getItemBackpack().getAllItems());
-                    }
                 }
             }
         } catch (error) {

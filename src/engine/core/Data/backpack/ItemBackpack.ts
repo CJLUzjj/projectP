@@ -58,4 +58,8 @@ export class ItemBackpack extends AbstractBackpack<ItemIndex> {
             return total + (value * quantity);
         }, 0);
     }
+
+    deserialize(data: Record<string, any>) {
+        super.deserialize(data);
+    }
 }

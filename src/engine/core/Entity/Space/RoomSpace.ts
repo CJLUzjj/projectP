@@ -9,7 +9,6 @@ export class RoomSpace extends BaseEntity {
 
     init() {
         this.addComponent("RoomProperty");
-        this.addComponent("ProcessBuilding");
         this.addComponent("BuildingList");
     }
 

@@ -15,12 +15,14 @@ export class BuildingPropertyComponent extends BaseComponent {
     data: BuildingData | null;
     state: BuildingState;
     ownerId: number;
+    spaceId: number;
 
     constructor(owner: BaseEntity) {
         super(owner, "BuildingProperty");
         this.data = null;
         this.ownerId = 0;
         this.state = BuildingState.Init;
+        this.spaceId = 0;
     }
 
     setData(data: BuildingData) {
@@ -37,6 +39,14 @@ export class BuildingPropertyComponent extends BaseComponent {
 
     getOwnerId(): number {
         return this.ownerId;
+    }
+
+    setSpaceId(spaceId: number) {
+        this.spaceId = spaceId;
+    }
+
+    getSpaceId(): number {
+        return this.spaceId;
     }
 
     getState(): BuildingState {

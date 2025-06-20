@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@godot-js/godot-ts": "^0.0.8",
-    "@types/node": "^22.7.3",
+    "@types/node": "^22.15.32",
     "nodemon": "3.1.10",
     "npm-run-all2": "8.0.1",
     "typescript": "^5.8.3"

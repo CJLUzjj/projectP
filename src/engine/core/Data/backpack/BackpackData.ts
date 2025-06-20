@@ -176,4 +176,11 @@ export abstract class AbstractBackpack<T> {
      * 获取物品列表（用于显示）
      */
     abstract getDisplayList(): Array<{id: string, name: string, info: string}>;
+
+    deserialize(data: Record<string, any>) {
+        this.id = data.id;
+        this.maxCapacity = data.maxCapacity;
+        this.unique = data.unique;
+        this.items = new Map(Object.entries(data.items));
+    }
 }

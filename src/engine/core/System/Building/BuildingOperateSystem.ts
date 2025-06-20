@@ -1,6 +1,5 @@
 import { World } from "../../Infra/World";
 import { BaseExcuteSystem } from "../../Infra/Base/System/BaseExcuteSystem";
-import { ProcessBuildingComponent } from "../../Component/Process/ProcessBuildingComponent";
 import { BaseEntity } from "../../Infra/Base/BaseEntity";
 import { addDefaultBuilding } from "../Utility/Building/CreateBuilding";
 import { Building } from "../../Entity/Building";
@@ -13,6 +12,7 @@ import { BuildingType } from "../../Data/common";
 import { log } from "../../Interface/Service/LogService";
 import { PositionComponent } from "../../Component/PositionComponent";
 import { addBuilding } from "../Utility/Building/Common";
+import { HexMapComponent } from "../../Component/Map/HexMapComponent";
 
 @System(SystemType.Execute)
 export class BuildingOperateSystem extends BaseExcuteSystem {
@@ -76,11 +76,30 @@ export class BuildingOperateSystem extends BaseExcuteSystem {
                     continue;
                 }
 
-                // if (buildingPropertyComponent.getState() !== BuildingState.Constructed && 
-                //     buildingPropertyComponent.getState() !== BuildingState.Constructing) {
-                //     log.info("建筑状态不正确", buildingId, avatarId);
-                //     continue;
-                // }
+                const spaceId = buildingPropertyComponent.getSpaceId();
+                const space = this.world.getEntitiesManager().getEntity(spaceId);
+                if (!space) {
+                    log.info("空间不存在", spaceId);
+                    continue;
+                }
+                const hexMapComponent = space.getComponent("HexMap") as HexMapComponent;
+                if (!hexMapComponent) {
+                    log.info("空间不存在HexMap组件", spaceId);
+                    continue;
+                }
+
+                const positionComponent = building.getComponent("Position") as PositionComponent;
+                if (!positionComponent) {
+                    log.info("建筑不存在Position组件", buildingId);
+                    continue;
+                }
+
+                const hexTile = hexMapComponent.getHexAtPosition(positionComponent.getPosition());
+                if (!hexTile) {
+                    log.info("建筑位置不存在HexTile", buildingId);
+                    continue;
+                }
+                hexTile.entityId = 0;
 
                 // todo: 直接把entity删除好像也可以？
                 // buildingPropertyComponent.setState(BuildingState.Destroyed);

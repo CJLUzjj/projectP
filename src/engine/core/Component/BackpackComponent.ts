@@ -16,5 +16,9 @@ export class BackpackComponent extends BaseComponent {
     getItemBackpack(): ItemBackpack {
         return this.itemBackpack;
     }
+
+    deserialize(data: Record<string, any>) {
+        this.itemBackpack.deserialize(data.itemBackpack);
+    }
 }
 

@@ -23,12 +23,12 @@ import "./Property/AvatarPropertyComponent";
 import "./Property/RoomPropertyComponent";
 import "./Property/HallPropertyComponent";
 
-// 处理组件
-import "./Process/ProcessBuildingComponent";
-
 // 工作进度组件
 import "./Work/BuildingWorkProgressComponent";
 import "./Work/ProductionWorkProgressComponent";
 import "./Work/RestWorkProgressComponent";
 import "./Work/SyntheticWorkProgressComponent";
+
+// 地图组件
+import "./Map/HexMapComponent";
 
