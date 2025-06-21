@@ -71,7 +71,7 @@ export class MonsterOperateSystem extends BaseExcuteSystem {
                     log.info("空间不存在HexMap组件", spaceId);
                     continue;
                 }
-                positionComponent.setPosition(params.x, params.y, hexMapComponent.getHexSize());
+                positionComponent.setHexCoord(params.q, params.r);
             }
 
             monster.addComponent("Owner", avatarId);

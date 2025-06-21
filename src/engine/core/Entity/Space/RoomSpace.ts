@@ -10,6 +10,7 @@ export class RoomSpace extends BaseEntity {
     init() {
         this.addComponent("RoomProperty");
         this.addComponent("BuildingList");
+        this.addComponent("HexMap");
     }
 
     // public initializeDefaultBuildings(): void {

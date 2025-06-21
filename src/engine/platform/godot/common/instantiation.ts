@@ -11,7 +11,7 @@ export function registerComponentToSence(componentName: string, sence: (entityId
     createSenceMap.set(componentName, sence);
 }
 
-export function instantiate_asset(path: string, parent: Node) {
+export function instantiate_asset(path: string, parent: Node): Node | null {
     // 使用ResourceLoader加载tscn文件
     const scene = <PackedScene>ResourceLoader.load(path, "", ResourceLoader.CacheMode.CACHE_MODE_REUSE);
     
@@ -21,10 +21,9 @@ export function instantiate_asset(path: string, parent: Node) {
         
         // 将实例添加到场景树中
         parent.add_child(node, false, Node.InternalMode.INTERNAL_MODE_DISABLED);
-        
         return node;
     }
     
-    console.error("无法加载场景:", path);
+    log.error("无法加载场景:", path);
     return null;
 }

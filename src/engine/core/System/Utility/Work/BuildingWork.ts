@@ -13,8 +13,9 @@ import { BackpackComponent } from "../../../Component/BackpackComponent";
 import { BuildingType, Position } from "../../../Data/common";
 import { SpaceComponent } from "../../../Component/SpaceComponent";
 import { addBuilding } from "../Building/Common";
+import { HexCoord } from "../../../Data/MapData";
 
-export function createBuildingWorkProgress(world: World, avatar: Avatar, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, position: Position): void {
+export function createBuildingWorkProgress(world: World, avatar: Avatar, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, hexPos: HexCoord): void {
     const workConfig = BuildingWorkConfig.get(workType);
     if (!workConfig) {
         log.info("工作配置不存在", workType);
@@ -45,7 +46,7 @@ export function createBuildingWorkProgress(world: World, avatar: Avatar, buildin
         log.info("工作进度组件不存在", building.getId());
         return;
     }
-    const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime(), position);
+    const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime(), hexPos);
     if (!progressData) {
         log.info("工作进度不存在", building.getId());
         return;
@@ -107,7 +108,7 @@ export function processFinishBuildingWork(world: World, avatar: Avatar, building
     buildingPropertyComponent.setState(BuildingState.Constructed);
 }
 
-export function tryCreateBuildingForWork(world: World, avatar: Avatar, buildingType: BuildingType, position: Position): Building | null {
+export function tryCreateBuildingForWork(world: World, avatar: Avatar, buildingType: BuildingType, hexPos: HexCoord): Building | null {
     // todo:检查position是否可以建造
     
     const spaceComponent = avatar.getComponent("Space") as SpaceComponent;
@@ -116,9 +117,9 @@ export function tryCreateBuildingForWork(world: World, avatar: Avatar, buildingT
         return null;
     }
     const spaceId = spaceComponent.getSpaceId();
-    const building = addBuilding(world, avatar.getId(), spaceId, buildingType, position.x, position.y);
+    const building = addBuilding(world, avatar.getId(), spaceId, buildingType, hexPos.q, hexPos.r);
     if (!building) {
-        log.info("建筑创建失败", avatar.getId(), buildingType, position.x, position.y);
+        log.info("建筑创建失败", avatar.getId(), buildingType, hexPos.q, hexPos.r);
         return null;
     }
     return building;

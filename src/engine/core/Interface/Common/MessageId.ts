@@ -27,12 +27,14 @@ export interface MessageParams {
         avatarId: number;
         spaceId: number;
         buildingType: string;
-        x: number;
-        y: number;
+        q: number;
+        r: number;
     };
     [MessageType.REMOVE_BUILDING]: {
         avatarId: number;
-        buildingId: number;
+        spaceId: number;
+        q: number;
+        r: number;
     };
     [MessageType.ADD_MONSTER]: {
         avatarId: number;
@@ -40,8 +42,8 @@ export interface MessageParams {
         monsterType: string;
         name: string;
         level: number;
-        x: number;
-        y: number;
+        q: number;
+        r: number;
     };
     [MessageType.REMOVE_MONSTER]: {
         avatarId: number;
@@ -49,15 +51,17 @@ export interface MessageParams {
     };
     [MessageType.START_WORK]: {
         avatarId: number;
-        buildingId: number;
+        spaceId: number;
         workType: string;
         monsterId: number;
-        x: number;
-        y: number;
+        q: number;
+        r: number;
     };
     [MessageType.STOP_WORK]: {
         avatarId: number;
-        buildingId: number;
+        spaceId: number;
         monsterId: number;
+        q: number;
+        r: number;
     };
 }

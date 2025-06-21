@@ -9,8 +9,9 @@ import { WorkType, RestWorkProgressData } from "../../../Data/WorkData";
 import { Avatar } from "../../../Entity/Avatar";
 import { Monster } from "../../../Entity/Monster";
 import { Position } from "../../../Data/common";
+import { HexCoord } from "../../../Data/MapData";
 
-export function createRestWorkProgress(world: World, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, position: Position): void {
+export function createRestWorkProgress(world: World, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, hexPos: HexCoord): void {
     let workProgress = null
     if (building.hasComponent("RestWorkProgress")) {
         workProgress = building.getComponent("RestWorkProgress") as RestWorkProgressComponent;
@@ -21,7 +22,7 @@ export function createRestWorkProgress(world: World, building: Building, monster
         log.info("工作进度组件不存在", building.getId());
         return;
     }
-    const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime(), position);
+    const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime(), hexPos);
     if (!progressData) {
         log.info("工作进度不存在", building.getId());
         return;

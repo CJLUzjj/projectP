@@ -14,6 +14,7 @@ import { RestWorkProgressComponent } from "../../Component/Work/RestWorkProgress
 import { processFinishRestWork } from "../Utility/Work/RestWork";
 import { MonsterPropertyComponent } from "../../Component/Property/MonsterPropertyComponent";
 import { Monster } from "../../Entity/Monster";
+import { BuildingPropertyComponent } from "../../Component/Property/BuildingPropertyComponent";
 @System(SystemType.Execute)
 export class RestWorkProgressSystem extends BaseExcuteSystem {
     constructor(world: World) {
@@ -74,7 +75,10 @@ export class RestWorkProgressSystem extends BaseExcuteSystem {
             log.info("building不存在", progress.buildingId);
             return;
         }
+        const buildingProperty = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
+        const spaceId = buildingProperty.getSpaceId();
+
         processFinishRestWork(this.world, avatar, building, progress.monsterId, progress);
-        processStopWork(this.world, avatarId, progress.buildingId, progress.monsterId, true);
+        processStopWork(this.world, avatarId, spaceId, progress.monsterId, progress.hexPos, true);
     }
 }

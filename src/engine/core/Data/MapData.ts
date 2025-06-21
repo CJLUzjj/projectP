@@ -20,13 +20,11 @@ export const HEX_DIRECTIONS: HexCoord[] = [
 export class HexTile {
     coord: HexCoord;
     position: Position;
-    neighbors: HexCoord[];
     entityId: number;
     
     constructor(coord: HexCoord, position: Position) {
         this.coord = coord;
         this.position = position;
-        this.neighbors = [];
         this.entityId = 0;
     }
 }

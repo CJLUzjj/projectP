@@ -13,6 +13,7 @@ import { Building } from "../../Entity/Building";
 import { Avatar } from "../../Entity/Avatar";
 import { SyntheticWorkProgressComponent } from "../../Component/Work/SyntheticWorkProgressComponent";
 import { processFinishSyntheticWork } from "../Utility/Work/SyntheticWork";
+import { BuildingPropertyComponent } from "../../Component/Property/BuildingPropertyComponent";
 @System(SystemType.Execute)
 export class SyntheticWorkProgressSystem extends BaseExcuteSystem {
     constructor(world: World) {
@@ -59,7 +60,10 @@ export class SyntheticWorkProgressSystem extends BaseExcuteSystem {
             log.info("building不存在", progress.buildingId);
             return;
         }
+        const buildingProperty = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
+        const spaceId = buildingProperty.getSpaceId();
+
         processFinishSyntheticWork(this.world, avatar, building, progress.monsterId, progress);
-        processStopWork(this.world, avatarId, progress.buildingId, progress.monsterId, true);
+        processStopWork(this.world, avatarId, spaceId, progress.monsterId, progress.hexPos, true);
     }
 }

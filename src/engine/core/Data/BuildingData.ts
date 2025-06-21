@@ -1,9 +1,10 @@
 import { WorkType } from "./WorkData";
 import { BuildingType } from "./common";
+import { HexCoord } from "./MapData";
 
 // 建筑数据接口
 export class BuildingData {
-    constructor(type: BuildingType, name: string, description: string, maxWorkers: number, currentWorkers: number, level: number, efficiency: number, cost: BuildingCost, workTypes: WorkType[], workerList: number[]) {
+    constructor(type: BuildingType, name: string, description: string, maxWorkers: number, currentWorkers: number, level: number, efficiency: number, cost: BuildingCost, workTypes: WorkType[], workerList: number[], hexCoord: HexCoord) {
         this.type = type;
         this.name = name;
         this.description = description;

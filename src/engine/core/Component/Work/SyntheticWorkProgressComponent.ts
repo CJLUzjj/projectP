@@ -3,7 +3,7 @@ import { BaseEntity } from "../../Infra/Base/BaseEntity";
 import { RegisterComponent } from "../../Infra/ComponentRegistry";
 import { SyntheticWorkProgressData, WorkType } from "../../Data/WorkData";
 import { SyntheticWorkConfig } from "../../Data/config/work/SyntheticWork";
-import { Position } from "../../Data/common";
+import { HexCoord } from "../../Data/MapData";
 @RegisterComponent("SyntheticWorkProgress")
 export class SyntheticWorkProgressComponent extends BaseComponent {
     private progressMap: Map<number, SyntheticWorkProgressData>;
@@ -13,12 +13,12 @@ export class SyntheticWorkProgressComponent extends BaseComponent {
         this.progressMap = new Map();
     }
 
-    addWorkProgress(monsterId: number, workType: WorkType, buildingId: number, time: number, position: Position): SyntheticWorkProgressData | null {
+    addWorkProgress(monsterId: number, workType: WorkType, buildingId: number, time: number, hexPos: HexCoord): SyntheticWorkProgressData | null {
         const workConfig = SyntheticWorkConfig.get(workType);
         if (!workConfig) {
             return null;
         }
-        const progressData = new SyntheticWorkProgressData(monsterId, workType, time, time, 0, buildingId, position, workConfig);
+        const progressData = new SyntheticWorkProgressData(monsterId, workType, time, time, 0, buildingId, hexPos, workConfig);
         this.progressMap.set(monsterId, progressData);
         return progressData;
     }

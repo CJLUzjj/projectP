@@ -23,9 +23,7 @@ export class EntitiesManager {
         const entity = new entityConstructor(this.world, entityId);
         this.idGenerators++;
         this.registerEntity(entity);
-        if (globalPropertySyncService) {
-            globalPropertySyncService.onAddEntity(entity);
-        }
+        this.world.getSyncQueue().updateAddEntity(entity);
         entity.init();
         return entity;
     }
@@ -48,9 +46,7 @@ export class EntitiesManager {
         if (!entity) {
             return;
         }
-        if (globalPropertySyncService) {
-            globalPropertySyncService.onRemoveEntity(entity);
-        }
+        this.world.getSyncQueue().updateRemoveEntity(entity);
         this.entities.delete(id);
     }
 

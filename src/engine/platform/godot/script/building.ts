@@ -5,6 +5,10 @@ import { globalMainScene } from "./space/main";
 import { SyncCallback } from "../service/syncService";
 import { instantiate_asset } from "../common/instantiation";
 import { PositionComponent } from "../../../core/Component/PositionComponent";
+import RoomSpace from "./space/room_space";
+import HexMap from "./map/hex_map";
+import { World } from "../../../core/Infra/World";
+import { HexMapComponent } from "../../../core/Component/Map/HexMapComponent";
 
 const kBuildingPath = "res://src/engine/platform/godot/sence/building.tscn";
 
@@ -35,7 +39,6 @@ export default class Building extends Sprite2D {
 		log.info("Building onComponentAdded", component.getComponentName());
 		if (component.getComponentName() == "Position") {
 			const positionComponent = component as PositionComponent;
-			log.info("Building onComponentAdded Position", positionComponent.getPosition().x, positionComponent.getPosition().y);
 			this.position.x = positionComponent.getPosition().x;
 			this.position.y = positionComponent.getPosition().y;
 			this.updatePosition();
@@ -58,7 +61,27 @@ export default class Building extends Sprite2D {
 			return new SyncCallback();
 		}
 
-		const node = <Building><unknown>instantiate_asset(kBuildingPath, globalMainScene)
+		const entity = component.owner;
+		const positionComponent = entity.getComponent("Position") as PositionComponent;
+		if (positionComponent == null) {
+			log.error("positionComponent is null");
+			return new SyncCallback();
+		}
+
+		const hexPos = positionComponent.getHexCoord();
+		const space = globalMainScene.get_node("room_space") as RoomSpace;
+		const hexMap = space.get_node("hex_map") as HexMap;
+		log.info("hexPos", hexPos.q, hexPos.r);
+
+		const hextile = hexMap.getHexTile(HexMapComponent.coordToKey(hexPos));
+		if (hextile == null) {
+			log.error("hextile is null");
+			return new SyncCallback();
+		}
+		const node = <Building><unknown>instantiate_asset(kBuildingPath, hextile);
+		log.info("building index", node.get_index());
+		hextile.move_child(node, 1);
+		log.info("building index", node.get_index());
 		node.setEntityId(entityId);
 
 		const syncCallback = new SyncCallback();
@@ -72,8 +95,8 @@ export default class Building extends Sprite2D {
 		}
 	
 		syncCallback.removeCallback = () => {
-			if (globalMainScene != null) {
-				globalMainScene.remove_child(node);
+			if (hextile) {
+				hextile.remove_child(node);
 			}
 		}
 	

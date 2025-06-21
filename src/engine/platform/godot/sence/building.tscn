@@ -1,24 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://rg8l1ddw61gk"]
+[gd_scene load_steps=2 format=3 uid="uid://rg8l1ddw61gk"]
 
 [ext_resource type="Script" uid="uid://b5r715rrflgux" path="res://src/engine/platform/godot/script/building.ts" id="1_04hgr"]
-
-[sub_resource type="CanvasTexture" id="CanvasTexture_b7vif"]
 
 [node name="building" type="Sprite2D"]
 script = ExtResource("1_04hgr")
 
 [node name="ColorRect" type="ColorRect" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = -1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -21.0
+offset_top = -20.0
+offset_right = 19.0
+offset_bottom = 20.0
 color = Color(0.792836, 0.957696, 0.516291, 1)
 metadata/_edit_use_anchors_ = true
-
-[node name="MenuButton" type="MenuButton" parent="."]
-offset_left = 1.0
-offset_top = 1.0
-offset_right = 40.0
-offset_bottom = 41.0
-item_count = 1
-popup/item_0/text = "派遣帕鲁"
-popup/item_0/icon = SubResource("CanvasTexture_b7vif")
-popup/item_0/id = 0

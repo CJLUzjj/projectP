@@ -127,10 +127,11 @@ export class ComponentRegistry {
         }
 
         if (component) {
-            if (globalPropertySyncService) {
-                component = createObserver(component, globalPropertySyncService.onSyncComponent);
-                globalPropertySyncService.onAddComponent(component);
-            }
+            const world = owner.getWorld();
+            component = createObserver(component, (component) => {
+                world.getSyncQueue().updateSyncComponent(component);
+            });
+            world.getSyncQueue().updateAddComponent(component);
             this.addComponentToEntity(owner.getId(), name, component);
             return component;
         }

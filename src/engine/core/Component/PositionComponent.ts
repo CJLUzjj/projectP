@@ -3,7 +3,8 @@ import { BaseEntity } from "../Infra/Base/BaseEntity";
 import { RegisterComponent } from "../Infra/ComponentRegistry";
 import { Position } from "../Data/common";
 import { HexCoord } from "../Data/MapData";
-import { pixelToHex } from "../Util/Position";
+import { hexToPixel, pixelToHex } from "../Util/Position";
+import { HEX_SIZE } from "../Data/constVal";
 @RegisterComponent("Position")
 export class PositionComponent extends BaseComponent {
     private pos: Position = { x: 0, y: 0 };
@@ -13,12 +14,16 @@ export class PositionComponent extends BaseComponent {
         super(owner, "Position");
     }
 
-    setPosition(x: number, y: number, hexSize: number) {
-        this.pos = { x, y };
-        this.hexCoord = pixelToHex(this.pos, hexSize);
-    }
-
     getPosition() {
         return this.pos;
+    }
+
+    getHexCoord() {
+        return this.hexCoord;
+    }
+    
+    setHexCoord(q: number, r: number) {
+        this.hexCoord = { q, r };
+        this.pos = hexToPixel(this.hexCoord, HEX_SIZE);
     }
 }

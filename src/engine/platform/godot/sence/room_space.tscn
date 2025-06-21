@@ -1,42 +1,53 @@
 [gd_scene load_steps=3 format=3 uid="uid://by6vg2875dwgn"]
 
 [ext_resource type="Script" uid="uid://c4ravaubud2lo" path="res://src/engine/platform/godot/script/space/room_space.ts" id="1_vr7gp"]
-[ext_resource type="Script" uid="uid://djlfddcut3e2u" path="res://src/engine/platform/godot/script/input/room_input.ts" id="2_dqd0a"]
+[ext_resource type="Script" uid="uid://cwvqv53yjm5oi" path="res://src/engine/platform/godot/script/map/hex_map.ts" id="3_wcn1n"]
 
 [node name="room_space" type="Node2D"]
 script = ExtResource("1_vr7gp")
 
 [node name="ColorRect" type="ColorRect" parent="."]
-offset_left = -8.0
-offset_top = -9.0
-offset_right = 1173.0
-offset_bottom = 663.0
+offset_left = -606.0
+offset_top = -344.0
+offset_right = 575.0
+offset_bottom = 328.0
 color = Color(0.176423, 0.541754, 0.440948, 1)
 
-[node name="AddBuilding" type="Button" parent="."]
-offset_left = 65.0
-offset_top = 50.0
-offset_right = 152.0
-offset_bottom = 82.0
+[node name="hex_map" type="Node2D" parent="."]
+script = ExtResource("3_wcn1n")
+
+[node name="button_list" type="MarginContainer" parent="."]
+visible = false
+offset_right = 83.0
+offset_bottom = 136.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="button_list"]
+layout_mode = 2
+
+[node name="add_building" type="Button" parent="button_list/VBoxContainer"]
+layout_mode = 2
 text = "添加建筑"
 
-[node name="RemoveBuilding" type="Button" parent="."]
-offset_left = 65.0
-offset_top = 96.0
-offset_right = 152.0
-offset_bottom = 133.0
+[node name="remove_building" type="Button" parent="button_list/VBoxContainer"]
+layout_mode = 2
 text = "删除建筑"
 
-[node name="AddMonster" type="Button" parent="."]
-offset_left = 66.0
-offset_top = 156.0
-offset_right = 152.0
-offset_bottom = 191.0
-text = "添加帕鲁"
+[node name="start_work" type="Button" parent="button_list/VBoxContainer"]
+layout_mode = 2
+text = "派遣工作"
 
-[node name="room_input" type="Node" parent="."]
-script = ExtResource("2_dqd0a")
+[node name="stop_work" type="Button" parent="button_list/VBoxContainer"]
+layout_mode = 2
+text = "停止工作"
 
-[connection signal="pressed" from="AddBuilding" to="." method="_on_add_building_pressed"]
-[connection signal="pressed" from="RemoveBuilding" to="." method="_on_remove_building_pressed"]
-[connection signal="pressed" from="AddMonster" to="." method="_on_add_monster_pressed"]
+[node name="add_monster" type="Button" parent="button_list/VBoxContainer"]
+layout_mode = 2
+text = "添加宝可梦"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[connection signal="pressed" from="button_list/VBoxContainer/add_building" to="hex_map" method="_on_add_building_pressed"]
+[connection signal="pressed" from="button_list/VBoxContainer/remove_building" to="hex_map" method="_on_remove_building_pressed"]
+[connection signal="pressed" from="button_list/VBoxContainer/start_work" to="hex_map" method="_on_start_work_pressed"]
+[connection signal="pressed" from="button_list/VBoxContainer/stop_work" to="hex_map" method="_on_stop_work_pressed"]
+[connection signal="pressed" from="button_list/VBoxContainer/add_monster" to="hex_map" method="_on_add_monster_pressed"]

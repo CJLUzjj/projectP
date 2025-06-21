@@ -22,6 +22,9 @@ import { ProductionWorkProgressComponent } from "../../../Component/Work/Product
 import { BuildingWorkProgressComponent } from "../../../Component/Work/BuildingWorkProgressComponent";
 import { RestWorkProgressComponent } from "../../../Component/Work/RestWorkProgressComponent";
 import { SyntheticWorkProgressComponent } from "../../../Component/Work/SyntheticWorkProgressComponent";
+import { RoomSpace } from "../../../Entity/Space/RoomSpace";
+import { HexMapComponent } from "../../../Component/Map/HexMapComponent";
+import { HexCoord } from "../../../Data/MapData";
 export const workIndex: Map<WorkType, WorkBaseType> = new Map();
 
 export function buildIndex() {
@@ -62,7 +65,7 @@ export function hasAvailableWorkSlot(building: Building, workType: WorkType): bo
     return false;
 }
 
-export function processStartWork(world: World, avatarId: number, buildingId: number, workType: WorkType, monsterId: number, position: Position): boolean {
+export function processStartWork(world: World, avatarId: number, spaceId: number, workType: WorkType, monsterId: number, hexPos: HexCoord): boolean {
     const baseType = workIndex.get(workType);
     if (!baseType) {
         log.info("工作类型不存在", workType);
@@ -81,10 +84,37 @@ export function processStartWork(world: World, avatarId: number, buildingId: num
         return false;
     }
 
-    let building = world.getEntitiesManager().getEntity(buildingId) as Building;
-    if (!building) {
-        log.info("建筑不存在", buildingId);
+    const space = world.getEntitiesManager().getEntity(spaceId) as RoomSpace;
+    if (!space) {
+        log.info("空间不存在", spaceId);
         return false;
+    }
+
+    const hexMapComponent = space.getComponent("HexMap") as HexMapComponent;
+    if (!hexMapComponent) {
+        log.info("空间不存在HexMap组件", spaceId);
+        return false;
+    }
+
+    const hexTile = hexMapComponent.getHexAt(hexPos);
+    if (!hexTile) {
+        log.info("位置不存在HexTile", hexPos.q, hexPos.r);
+        return false;
+    }
+
+    const buildingId = hexTile.entityId;
+    let building: Building | null = null;
+    if (buildingId == 0 && baseType != WorkBaseType.Building) {
+        log.info("位置不存在建筑", hexPos.q, hexPos.r);
+        return false;
+    } else if (buildingId != 0 && baseType == WorkBaseType.Building) {
+        log.info("位置存在建筑", hexPos.q, hexPos.r);
+    } else {
+        building = world.getEntitiesManager().getEntity(buildingId) as Building;
+        if (!building) {
+            log.info("建筑不存在", buildingId);
+            return false;
+        }
     }
     
     if (baseType == WorkBaseType.Building) {
@@ -93,13 +123,15 @@ export function processStartWork(world: World, avatarId: number, buildingId: num
             log.info("工作配置不存在", workType);
             return false;
         }
-        const newBuilding = tryCreateBuildingForWork(world, avatar, workConfig.buildingType, position);
-        if (!newBuilding) {
-            log.info("建筑创建失败", buildingId);
-            return false;
-        }
+        const newBuilding = tryCreateBuildingForWork(world, avatar, workConfig.buildingType, hexPos);
         building = newBuilding;
     }
+
+    if (!building) {
+        log.info("建筑不存在", buildingId);
+        return false;
+    }
+
     if (!checkCanStartWork(avatar,monster, building, workType)) {
         return false;
     }
@@ -111,13 +143,13 @@ export function processStartWork(world: World, avatarId: number, buildingId: num
     monsterPropertyComponent.startWork(workType, buildingId, world.getCurrentVirtualTime());
 
     if (baseType == WorkBaseType.Production) {
-        createProductionWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty, position);
+        createProductionWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty, hexPos);
     } else if (baseType == WorkBaseType.Building) {
-        createBuildingWorkProgress(world, avatar, building, monsterId, workType, monsterPropertyComponent.baseProperty, position);
+        createBuildingWorkProgress(world, avatar, building, monsterId, workType, monsterPropertyComponent.baseProperty, hexPos);
     } else if (baseType == WorkBaseType.Rest) {
-        createRestWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty, position);
+        createRestWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty, hexPos);
     } else if (baseType == WorkBaseType.Synthetic) {
-        createSyntheticWorkProgress(world, avatar, building, monsterId, workType, monsterPropertyComponent.baseProperty, position);
+        createSyntheticWorkProgress(world, avatar, building, monsterId, workType, monsterPropertyComponent.baseProperty, hexPos);
     }
     return true;
 }
@@ -200,7 +232,31 @@ function checkCanStartWork(avatar: Avatar, monster: Monster, building: Building,
     return true;
 }
 
-export function processStopWork(world: World, avatarId: number, buildingId: number, monsterId: number, isComplete: boolean = false): boolean {
+export function processStopWork(world: World, avatarId: number, spaceId: number, monsterId: number, hexPos: HexCoord, isComplete: boolean = false): boolean {
+    const space = world.getEntitiesManager().getEntity(spaceId) as RoomSpace;
+    if (!space) {
+        log.info("空间不存在", spaceId);
+        return false;
+    }
+
+    const hexMapComponent = space.getComponent("HexMap") as HexMapComponent;
+    if (!hexMapComponent) {
+        log.info("空间不存在HexMap组件", spaceId);
+        return false;
+    }
+
+    const hexTile = hexMapComponent.getHexAt(hexPos);
+    if (!hexTile) {
+        log.info("位置不存在HexTile", hexPos.q, hexPos.r);
+        return false;
+    }
+
+    const buildingId = hexTile.entityId;
+    if (buildingId == 0) {
+        log.info("位置不存在建筑", hexPos.q, hexPos.r);
+        return false;
+    }
+
     const building = world.getEntitiesManager().getEntity(buildingId) as Building;
     if (!building) {
         log.info("建筑不存在", buildingId);
@@ -236,43 +292,15 @@ export function processStopWork(world: World, avatarId: number, buildingId: numb
         if (baseType == WorkBaseType.Production) {
             const workConfig = ProductionWorkConfig.get(workType);
             baseWorkConfig = workConfig;
-            const workProgress = building.getComponent("ProductionWorkProgress") as ProductionWorkProgressComponent;
-            if (workProgress) {
-                const workProgressData = workProgress.getWorkProgress(monsterId);
-                if (workProgressData) {
-                    processFinishProductionWork(world, avatar, building, monsterId, workProgressData);
-                }
-            }
         } else if (baseType == WorkBaseType.Building) {
             const workConfig = BuildingWorkConfig.get(workType);
             baseWorkConfig = workConfig;
-            const workProgress = building.getComponent("BuildingWorkProgress") as BuildingWorkProgressComponent;
-            if (workProgress) {
-                const workProgressData = workProgress.getWorkProgress(monsterId);
-                if (workProgressData) {
-                    processFinishBuildingWork(world, avatar, building, monsterId, workProgressData);
-                }
-            }
         } else if (baseType == WorkBaseType.Rest) {
             const workConfig = RestWorkConfig.get(workType);
             baseWorkConfig = workConfig;
-            const workProgress = building.getComponent("RestWorkProgress") as RestWorkProgressComponent;
-            if (workProgress) {
-                const workProgressData = workProgress.getWorkProgress(monsterId);
-                if (workProgressData) {
-                    processFinishRestWork(world, avatar, building, monsterId, workProgressData);
-                }
-            }
         } else if (baseType == WorkBaseType.Synthetic) {
             const workConfig = SyntheticWorkConfig.get(workType);
             baseWorkConfig = workConfig;
-            const workProgress = building.getComponent("SyntheticWorkProgress") as SyntheticWorkProgressComponent;
-            if (workProgress) {
-                const workProgressData = workProgress.getWorkProgress(monsterId);
-                if (workProgressData) {
-                    processFinishSyntheticWork(world, avatar, building, monsterId, workProgressData);
-                }
-            }
         }
         if (baseWorkConfig) {
             baseExp = Math.round(baseWorkConfig.baseTime / 10);

@@ -3,7 +3,7 @@ import { BaseEntity } from "../../Infra/Base/BaseEntity";
 import { RegisterComponent } from "../../Infra/ComponentRegistry";
 import { RestWorkProgressData, WorkType } from "../../Data/WorkData";
 import { RestWorkConfig } from "../../Data/config/work/RestWork";
-import { Position } from "../../Data/common";
+import { HexCoord } from "../../Data/MapData";
 @RegisterComponent("RestWorkProgress")
 export class RestWorkProgressComponent extends BaseComponent {
     private progressMap: Map<number, RestWorkProgressData>;
@@ -13,12 +13,12 @@ export class RestWorkProgressComponent extends BaseComponent {
         this.progressMap = new Map();
     }
 
-    addWorkProgress(monsterId: number, workType: WorkType, buildingId: number, time: number, position: Position): RestWorkProgressData | null {
+    addWorkProgress(monsterId: number, workType: WorkType, buildingId: number, time: number, hexPos: HexCoord): RestWorkProgressData | null {
         const workConfig = RestWorkConfig.get(workType);
         if (!workConfig) {
             return null;
         }
-        const progressData = new RestWorkProgressData(monsterId, workType, time, time, 0, buildingId, position, workConfig);
+        const progressData = new RestWorkProgressData(monsterId, workType, time, time, 0, buildingId, hexPos, workConfig);
         this.progressMap.set(monsterId, progressData);
         return progressData;
     }

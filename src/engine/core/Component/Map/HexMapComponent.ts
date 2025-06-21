@@ -4,6 +4,8 @@ import { BaseComponent } from "../../Infra/Base/BaseComponent";
 import { BaseEntity } from "../../Infra/Base/BaseEntity";
 import { RegisterComponent } from "../../Infra/ComponentRegistry";
 import { hexToPixel, pixelToHex } from "../../Util/Position";
+import { log } from "../../Interface/Service/LogService";
+import { HEX_SIZE } from "../../Data/constVal";
 
 @RegisterComponent("HexMap")
 export class HexMapComponent extends BaseComponent {
@@ -11,11 +13,13 @@ export class HexMapComponent extends BaseComponent {
     private hexMap: Map<string, HexTile>;
     private frontier: Set<string>;
 
-    constructor(owner: BaseEntity, hexSize: number) {
+    constructor(owner: BaseEntity) {
         super(owner, "HexMap");
-        this.hexSize = hexSize;
+        this.hexSize = HEX_SIZE;
         this.hexMap = new Map();
         this.frontier = new Set();
+        this.resetMap();
+        this.expandMapLevel(5);
     }
 
     resetMap(): void {
@@ -25,42 +29,43 @@ export class HexMapComponent extends BaseComponent {
         // 添加中心六边形
         const centerCoord = { q: 0, r: 0 };
         const centerPos = { x: 0, y: 0 }; // 逻辑位置，实际应用中会基于画布调整
-        const centerHex = this.createHexTile(centerCoord, centerPos);
+        const centerHex = new HexTile(centerCoord, centerPos);
         
-        this.hexMap.set(this.coordToKey(centerCoord), centerHex);
+        this.hexMap.set(HexMapComponent.coordToKey(centerCoord), centerHex);
         
-        // 将中心六边形的邻居添加到边界
-        centerHex.neighbors.forEach(neighbor => {
-            this.frontier.add(this.coordToKey(neighbor));
+        const neighbors = this.calculateNeighbors(centerHex);
+        neighbors.forEach(neighbor => {
+            this.frontier.add(HexMapComponent.coordToKey(neighbor));
         });
-    }
-
-    createHexTile(coord: HexCoord, position: Position): HexTile {
-        const hexTile = new HexTile(coord, position);
-        hexTile.neighbors = this.calculateNeighbors(hexTile);
-        return hexTile;
+        log.info("地图初始化完成", this.hexMap.size);
     }
 
     // 拓展地图（添加一个六边形）
-    expandMap(): HexCoord | null {
+    expandMap(key: string): HexCoord | null {
         if (this.frontier.size === 0) return null;
         
         // 随机选择一个边界位置
         const keys = Array.from(this.frontier.keys());
-        const randomKey = keys[Math.floor(Math.random() * keys.length)];
-        const coord = this.keyToCoord(randomKey);
+        let chooseKey = "";
+        if (keys.length === 0) {
+            chooseKey = keys[Math.floor(Math.random() * keys.length)];
+        } else {
+            chooseKey = key;
+        }
+        const coord = HexMapComponent.keyToCoord(chooseKey);
         
         // 从边界中移除
-        this.frontier.delete(randomKey);
+        this.frontier.delete(chooseKey);
         
         // 创建新六边形
         const position = hexToPixel(coord, this.hexSize);
-        const newHex = this.createHexTile(coord, position);
-        this.hexMap.set(randomKey, newHex);
+        const newHex = new HexTile(coord, position);
+        this.hexMap.set(chooseKey, newHex);
         
+        const neighbors = this.calculateNeighbors(newHex);
         // 添加新邻居到边界
-        newHex.neighbors.forEach(neighbor => {
-            const neighborKey = this.coordToKey(neighbor);
+        neighbors.forEach(neighbor => {
+            const neighborKey = HexMapComponent.coordToKey(neighbor);
             
             // 如果邻居不存在且不在边界中，则添加到边界
             if (!this.hexMap.has(neighborKey) && !this.frontier.has(neighborKey)) {
@@ -70,10 +75,22 @@ export class HexMapComponent extends BaseComponent {
         
         return coord;
     }
+
+    expandMapLevel(level: number): void {
+        if (this.frontier.size === 0) return;
+        for (let i = 0; i < level; i++) {
+            const currentFrontier = new Set(this.frontier);
+            for (const key of currentFrontier) {
+                this.expandMap(key);
+            }
+        }
+
+        log.info("地图扩展完成", this.hexMap.size);
+    }
     
     // 添加特定六边形
     addHexAt(coord: HexCoord): boolean {
-        const key = this.coordToKey(coord);
+        const key = HexMapComponent.coordToKey(coord);
         
         // 如果已存在，不添加
         if (this.hexMap.has(key)) return false;
@@ -86,9 +103,10 @@ export class HexMapComponent extends BaseComponent {
         // 从边界中移除（如果存在）
         this.frontier.delete(key);
         
+        const neighbors = this.calculateNeighbors(newHex);
         // 添加新邻居到边界
-        newHex.neighbors.forEach(neighbor => {
-            const neighborKey = this.coordToKey(neighbor);
+        neighbors.forEach(neighbor => {
+            const neighborKey = HexMapComponent.coordToKey(neighbor);
             if (!this.hexMap.has(neighborKey) && !this.frontier.has(neighborKey)) {
                 this.frontier.add(neighborKey);
             }
@@ -106,12 +124,12 @@ export class HexMapComponent extends BaseComponent {
     }
 
     // 坐标转字符串键
-    coordToKey(coord: HexCoord): string {
+    static coordToKey(coord: HexCoord): string {
         return `${coord.q},${coord.r}`;
     }
 
     // 字符串键转坐标
-    keyToCoord(key: string): HexCoord {
+    static keyToCoord(key: string): HexCoord {
         const [q, r] = key.split(',').map(Number);
         return { q, r };
     }
@@ -128,7 +146,7 @@ export class HexMapComponent extends BaseComponent {
     
     // 获取特定坐标的六边形
     getHexAt(coord: HexCoord): HexTile | null {
-        const key = this.coordToKey(coord);
+        const key = HexMapComponent.coordToKey(coord);
         return this.hexMap.get(key) || null;
     }
 
@@ -139,5 +157,9 @@ export class HexMapComponent extends BaseComponent {
 
     getHexSize(): number {
         return this.hexSize;
+    }
+
+    getHexMap(): Map<string, HexTile> {
+        return this.hexMap;
     }
 }

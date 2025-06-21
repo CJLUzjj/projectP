@@ -1,0 +1,16 @@
+[remap]
+
+importer="bitmap"
+type="BitMap"
+uid="uid://q3ncmmacdouv"
+path="res://.godot/imported/hex_button.png-5af991360531149238cdfca01f4bfd54.res"
+
+[deps]
+
+source_file="res://assets/map/hex_button.png"
+dest_files=["res://.godot/imported/hex_button.png-5af991360531149238cdfca01f4bfd54.res"]
+
+[params]
+
+create_from=1
+threshold=0.05

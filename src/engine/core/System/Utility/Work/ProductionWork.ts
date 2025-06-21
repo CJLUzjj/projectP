@@ -8,10 +8,10 @@ import { BuildingPropertyComponent } from "../../../Component/Property/BuildingP
 import { calculateWorkTime } from "../Building/CreateBuilding";
 import { Avatar } from "../../../Entity/Avatar";
 import { Monster } from "../../../Entity/Monster";
-import { Position } from "../../../Data/common";
 import { BackpackComponent } from "../../../Component/BackpackComponent";
+import { HexCoord } from "../../../Data/MapData";
 export function createProductionWorkProgress(
-    world: World, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, position: Position)
+    world: World, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, hexPos: HexCoord)
     : void {
         let workProgress = null
         if (building.hasComponent("ProductionWorkProgress")) {
@@ -23,7 +23,7 @@ export function createProductionWorkProgress(
             log.info("工作进度组件不存在", building.getId());
             return;
         }
-        const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime(), position);
+        const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime(), hexPos);
         if (!progressData) {
             log.info("工作进度不存在", building.getId());
             return;

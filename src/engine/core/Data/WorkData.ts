@@ -1,4 +1,5 @@
 import { BuildingType, Position } from "./common";
+import { HexCoord } from "./MapData";
 
 // 工作类型枚举
 export enum WorkType {
@@ -119,46 +120,46 @@ export class BaseWorkProgressData {
     endTime: number;
     progress: number;
     buildingId: number;
-    position: Position;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position) {
+    hexPos: HexCoord;
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, hexPos: HexCoord) {
         this.monsterId = monsterId;
         this.workType = workType;
         this.startTime = startTime;
         this.endTime = endTime;
         this.progress = progress;
         this.buildingId = buildingId;
-        this.position = position;
+        this.hexPos = hexPos;
     }
 }
 
 export class ProductionWorkProgressData extends BaseWorkProgressData {
     workConfig: ProductionWork;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position, workConfig: ProductionWork) {
-        super(monsterId, workType, startTime, endTime, progress, buildingId, position);
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, hexPos: HexCoord, workConfig: ProductionWork) {
+        super(monsterId, workType, startTime, endTime, progress, buildingId, hexPos);
         this.workConfig = workConfig;
     }
 }
 
 export class BuildingWorkProgressData extends BaseWorkProgressData {
     workConfig: BuildingWork;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position, workConfig: BuildingWork) {
-        super(monsterId, workType, startTime, endTime, progress, buildingId, position);
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, hexPos: HexCoord, workConfig: BuildingWork) {
+        super(monsterId, workType, startTime, endTime, progress, buildingId, hexPos);
         this.workConfig = workConfig;
     }
 }
 
 export class RestWorkProgressData extends BaseWorkProgressData {
     workConfig: RestWork;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position, workConfig: RestWork) {
-        super(monsterId, workType, startTime, endTime, progress, buildingId, position);
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, hexPos: HexCoord, workConfig: RestWork) {
+        super(monsterId, workType, startTime, endTime, progress, buildingId, hexPos);
         this.workConfig = workConfig;
     }
 }
 
 export class SyntheticWorkProgressData extends BaseWorkProgressData {
     workConfig: SyntheticWork;
-    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, position: Position, workConfig: SyntheticWork) {
-        super(monsterId, workType, startTime, endTime, progress, buildingId, position);
+    constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, hexPos: HexCoord, workConfig: SyntheticWork) {
+        super(monsterId, workType, startTime, endTime, progress, buildingId, hexPos);
         this.workConfig = workConfig;
     }
 }

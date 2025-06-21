@@ -11,8 +11,9 @@ import { Monster } from "../../../Entity/Monster";
 import { SyntheticWorkConfig } from "../../../Data/config/work/SyntheticWork";
 import { BackpackComponent } from "../../../Component/BackpackComponent";
 import { Position } from "../../../Data/common";
+import { HexCoord } from "../../../Data/MapData";
 
-export function createSyntheticWorkProgress(world: World, avatar: Avatar, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, position: Position): void {
+export function createSyntheticWorkProgress(world: World, avatar: Avatar, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, hexPos: HexCoord): void {
     const workConfig = SyntheticWorkConfig.get(workType);
     if (!workConfig) {
         log.info("工作配置不存在", workType);
@@ -43,7 +44,7 @@ export function createSyntheticWorkProgress(world: World, avatar: Avatar, buildi
         log.info("工作进度组件不存在", building.getId());
         return;
     }
-    const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime(), position);
+    const progressData = workProgress.addWorkProgress(monsterId, workType, building.getId(), world.getCurrentVirtualTime(), hexPos);
     if (!progressData) {
         log.info("工作进度不存在", building.getId());
         return;

@@ -37,10 +37,10 @@ export class WorkOperateSystem extends BaseExcuteSystem {
             }
             const params = message.args as MessageParams[MessageType.START_WORK];
             const workType = params.workType as WorkType;
-            if (!processStartWork(this.world, params.avatarId, params.buildingId, workType, params.monsterId, {x: params.x, y: params.y})) {
-                log.info("工作开始失败", params.avatarId, params.buildingId, params.workType, params.monsterId);
+            if (!processStartWork(this.world, params.avatarId, params.spaceId, workType, params.monsterId, {q: params.q, r: params.r})) {
+                log.info("工作开始失败", params.avatarId, params.workType, params.monsterId);
             }
-            log.info("工作开始成功", params.avatarId, params.buildingId, params.workType, params.monsterId);
+            log.info("工作开始成功", params.avatarId, params.workType, params.monsterId);
         }
     }
 
@@ -51,10 +51,10 @@ export class WorkOperateSystem extends BaseExcuteSystem {
                 break;
             }
             const params = message.args as MessageParams[MessageType.STOP_WORK];
-            if (!processStopWork(this.world, params.avatarId, params.buildingId, params.monsterId)) {
-                log.info("工作停止失败", params.avatarId, params.buildingId, params.monsterId);
+            if (!processStopWork(this.world, params.avatarId, params.spaceId, params.monsterId, {q: params.q, r: params.r})) {
+                log.info("工作停止失败", params.avatarId, params.spaceId, params.monsterId);
             }
-            log.info("工作停止成功", params.avatarId, params.buildingId, params.monsterId);
+            log.info("工作停止成功", params.avatarId, params.spaceId, params.monsterId);
         }
     }
 }

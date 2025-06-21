@@ -21,10 +21,10 @@ export default class Monster extends Sprite2D {
 	}
 
 	onComponentChanged(component: BaseComponent): void {
-		log.info("Building onComponentChanged", component.getComponentName());
+		log.info("Monster onComponentChanged", component.getComponentName());
 		if (component.getComponentName() == "Position") {
 			const positionComponent = component as PositionComponent;
-			log.info("Building onComponentChanged Position", positionComponent.getPosition().x, positionComponent.getPosition().y);
+			log.info("Monster onComponentChanged Position", positionComponent.getPosition().x, positionComponent.getPosition().y);
 			this._cached_pos.x = positionComponent.getPosition().x;
 			this._cached_pos.y = positionComponent.getPosition().y;
 			this.updatePosition();
@@ -32,12 +32,12 @@ export default class Monster extends Sprite2D {
 	}
 
 	onComponentAdded(component: BaseComponent): void {
-		log.info("Building onComponentAdded", component.getComponentName());
+		log.info("Monster onComponentAdded", component.getComponentName());
 		if (component.getComponentName() == "Position") {
 			const positionComponent = component as PositionComponent;
-			log.info("Building onComponentAdded Position", positionComponent.getPosition().x, positionComponent.getPosition().y);
-			this.position.x = positionComponent.getPosition().x;
-			this.position.y = positionComponent.getPosition().y;
+			log.info("Monster onComponentAdded Position", positionComponent.getPosition().x, positionComponent.getPosition().y);
+			this._cached_pos.x = positionComponent.getPosition().x;
+			this._cached_pos.y = positionComponent.getPosition().y;
 			this.updatePosition();
 		}
 	}

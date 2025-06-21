@@ -9,6 +9,7 @@ import { WorkType } from "../../../Data/WorkData";
 import { getMonsterWorkEfficiency } from "../Work/Common";
 import { WorkInfoConfig } from "../../../Data/config/WorkInfoConfig";
 import { log } from "../../../Interface/Service/LogService";
+import { HexCoord } from "../../../Data/MapData";
 
 export function addDefaultBuilding(buildingType: BuildingType): BuildingData {
     // 根据建筑类型创建建筑实例

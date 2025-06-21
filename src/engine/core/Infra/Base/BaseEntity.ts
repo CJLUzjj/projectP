@@ -93,6 +93,10 @@ export class BaseEntity {
         return false;
     }
 
+    getWorld(): World {
+        return this.world;
+    }
+
     tick() {
     }
 
@@ -136,9 +140,7 @@ export class BaseEntity {
             // 恢复id
             this.id = serializationData.id;
 
-            if (globalPropertySyncService) {
-                globalPropertySyncService.onAddEntity(this);
-            }
+            this.world.getSyncQueue().updateAddEntity(this);
             
             // 清空现有组件
             this.components.clear();

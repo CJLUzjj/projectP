@@ -8,7 +8,7 @@ import { BuildingPropertyComponent, BuildingState } from "../../../Component/Pro
 import { BuildingListComponent } from "../../../Component/List/BuildingListComponent";
 import { HexMapComponent } from "../../../Component/Map/HexMapComponent";
 export function addBuilding(world: World, avatarId: number, spaceId: number,
-    buildingType: BuildingType, x: number, y: number): Building | null {
+    buildingType: BuildingType, q: number, r: number): Building | null {
     //todo 检查是否可以建造
     const space = world.getEntitiesManager().getEntity(spaceId);
     if (!space) {
@@ -22,9 +22,9 @@ export function addBuilding(world: World, avatarId: number, spaceId: number,
         return null;
     }
 
-    const hexTile = hexMapComponent.getHexAtPosition({ x, y });
+    const hexTile = hexMapComponent.getHexAt({ q, r });
     if (!hexTile) {
-        log.info("位置不存在HexTile", x, y);
+        log.info("位置不存在HexTile", q, r);
         return null;
     }
 
@@ -39,11 +39,7 @@ export function addBuilding(world: World, avatarId: number, spaceId: number,
         buildingPropertyComponent.setSpaceId(spaceId);
 
         const buildingPositionComponent = building.getComponent("Position") as PositionComponent;
-        if (space.hasComponent("HexMap")) {
-            const hexMapComponent = space.getComponent("HexMap") as HexMapComponent;
-            buildingPositionComponent.setPosition(x, y, hexMapComponent.getHexSize());
-            
-        }
+        buildingPositionComponent.setHexCoord(q, r);
     }
 
     building.addComponent("Owner", avatarId);

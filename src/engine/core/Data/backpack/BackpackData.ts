@@ -56,8 +56,14 @@ export abstract class AbstractBackpack<T> {
             return true;
         } else {
             // 添加新物品
-            const uniId = ItemIndexIdGenerator.generateId();
-            this.items.set(id + '_' + uniId, new BackpackItem(id + '_' + uniId, id, item, count));
+            let key = "";
+            if (this.unique) {
+                const uniId = ItemIndexIdGenerator.generateId();
+                key = id + '_' + uniId;
+            } else {
+                key = id;
+            }
+            this.items.set(key, new BackpackItem(key, id, item, count));
             return true;
         }
     }

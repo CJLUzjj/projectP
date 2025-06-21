@@ -3,6 +3,7 @@ import { SystemsManager } from "./SystemsManager";
 import { log } from "../Interface/Service/LogService";
 import { Avatar } from "../Entity/Avatar";
 import { HallSpace } from "../Entity/Space/HallSpace";
+import { SyncQueue } from "./SyncQueue";
 
 export class World {
     // 用于创建单例component
@@ -10,6 +11,7 @@ export class World {
     private static worldIdGenerator: number = 1;
     private systemsManager: SystemsManager;
     private entitiesManager: EntitiesManager;
+    private syncQueue: SyncQueue;
     private isStart: boolean;
     private isLoad: boolean;
     private currentVirtualTime: number;
@@ -22,6 +24,7 @@ export class World {
         this.id = id;
         this.systemsManager = new SystemsManager(this);
         this.entitiesManager = new EntitiesManager(this);
+        this.syncQueue = new SyncQueue();
         this.isStart = false;
         this.isLoad = false;
         this.currentVirtualTime = 0;
@@ -51,10 +54,12 @@ export class World {
         SystemsManager.registerSystems(this);
         this.systemsManager.start();
         this.isStart = true;
-        
+
         // 输出系统注册统计信息
         const stats = this.systemsManager.getSystemsStats();
         log.info("世界启动完成，系统统计信息:", stats);
+
+        this.syncQueue.tick();
     }
 
     public stop(): void {
@@ -68,6 +73,7 @@ export class World {
         }
         this.systemsManager.tick();
         this.entitiesManager.tick();
+        this.syncQueue.tick();
     }
 
     public getSystemsManager(): SystemsManager {
@@ -100,6 +106,10 @@ export class World {
 
     public getIsLoad(): boolean {
         return this.isLoad;
+    }
+
+    public getSyncQueue(): SyncQueue {
+        return this.syncQueue;
     }
 
     static getDefaultWorld(): World {
