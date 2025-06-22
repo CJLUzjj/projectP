@@ -1,20 +1,143 @@
-[gd_scene load_steps=2 format=3 uid="uid://drsagxkw56p1a"]
+[gd_scene load_steps=17 format=3 uid="uid://odlntvr4nl1f"]
 
 [ext_resource type="Script" uid="uid://cjdk8ilhypc4v" path="res://src/engine/platform/godot/script/monster.ts" id="1_c7obd"]
+[ext_resource type="Texture2D" uid="uid://j14bxtyvn105" path="res://assets/sprites/characters/slime.png" id="2_7gd6x"]
 
-[node name="Sprite2D" type="Sprite2D"]
-position = Vector2(330, 129)
-scale = Vector2(0.761738, -1.67809)
+[sub_resource type="AtlasTexture" id="AtlasTexture_j6gss"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dmmey"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5twr5"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pwht5"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5w7lk"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(0, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bg1gs"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(32, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v12r1"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(64, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q267e"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(96, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p82l2"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(128, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_63spu"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(160, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yry1j"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(0, 288, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qsm5e"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(32, 288, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bqjsp"]
+atlas = ExtResource("2_7gd6x")
+region = Rect2(64, 288, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_yyxuh"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j6gss")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dmmey")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5twr5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pwht5")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5w7lk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bg1gs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v12r1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q267e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p82l2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_63spu")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yry1j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qsm5e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bqjsp")
+}],
+"loop": true,
+"name": &"work",
+"speed": 5.0
+}]
+
+[node name="Monster" type="CharacterBody2D"]
 script = ExtResource("1_c7obd")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-anchors_preset = -1
-anchor_left = 490.0
-anchor_top = 288.0
-anchor_right = 490.0
-anchor_bottom = 288.0
-offset_left = -512.317
-offset_top = -308.261
-offset_right = -472.317
-offset_bottom = -268.261
-color = Color(0.996604, 0.772201, 0.598879, 1)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_yyxuh")
+animation = &"idle"
+autoplay = "idle"
+frame_progress = 0.984345
+
+[node name="monster_button" type="Button" parent="AnimatedSprite2D"]
+offset_left = -8.0
+offset_top = -4.0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="button_list" type="MarginContainer" parent="."]
+visible = false
+offset_right = 83.0
+offset_bottom = 136.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="button_list"]
+layout_mode = 2
+
+[node name="start_move" type="Button" parent="button_list/VBoxContainer"]
+layout_mode = 2
+text = "开始移动"
+
+[connection signal="pressed" from="AnimatedSprite2D/monster_button" to="." method="_on_monster_button_pressed"]
+[connection signal="pressed" from="button_list/VBoxContainer/start_move" to="." method="_on_start_move_pressed"]

@@ -4,7 +4,7 @@ import { BaseComponent } from "./BaseComponent";
 import { World } from "../World";
 import { createObserver, globalPropertySyncService, PropertySyncService } from "../../Interface/Service/PropertySyncService";
 import { log } from "../../Interface/Service/LogService";
-import { BackpackComponent } from "../../Component/BackpackComponent";
+import { BackpackComponent } from "../../Component/Basic/BackpackComponent";
 
 export class BaseEntity {
     private id: number;

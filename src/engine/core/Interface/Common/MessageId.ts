@@ -14,6 +14,9 @@ export enum MessageType {
 
     START_WORK = 2001,
     STOP_WORK = 2002,
+
+    MOVE_TO = 2501,
+    ADD_OBSTACLE = 2502,
 }
 
 /**
@@ -61,6 +64,19 @@ export interface MessageParams {
         avatarId: number;
         spaceId: number;
         monsterId: number;
+        q: number;
+        r: number;
+    };
+    [MessageType.MOVE_TO]: {
+        avatarId: number;
+        spaceId: number;
+        entityId: number;
+        q: number;
+        r: number;
+    };
+    [MessageType.ADD_OBSTACLE]: {
+        avatarId: number;
+        spaceId: number;
         q: number;
         r: number;
     };

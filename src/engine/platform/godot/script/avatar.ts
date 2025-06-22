@@ -2,7 +2,7 @@ import { BaseComponent } from "../../../core/Infra/Base/BaseComponent";
 import { Node2D } from "godot";
 import { log } from "../../../core/Interface/Service/LogService";
 import { globalMainScene } from "./space/main";
-import { SyncCallback } from "../service/syncService";
+import { SyncCallback } from "../service/sync_service";
 import { instantiate_asset } from "../common/instantiation";
 
 export let globalAvatar: Avatar | null = null;
@@ -36,6 +36,18 @@ export default class Avatar extends Node2D {
 		return this.entityId;
 	}
 
+	_on_backpack_button_pressed(): void {
+		log.info("_on_backpack_button_pressed");
+		const backpack = this.get_node("backpack") as Node2D;
+		backpack.visible = true;
+	}
+
+	_on_close_button_pressed(): void {
+		log.info("_on_backpack_button_released");
+		const backpack = this.get_node("backpack") as Node2D;
+		backpack.visible = false;
+	}
+
 	static createSence(entityId: number, component: BaseComponent): SyncCallback {
 		log.info("createSence", entityId, component);
 		if (globalMainScene == null) {
@@ -43,7 +55,7 @@ export default class Avatar extends Node2D {
 			return new SyncCallback();
 		}
 
-		const node = <Avatar><unknown>instantiate_asset(kAvatarPath, globalMainScene)
+		const node = <Avatar><unknown>instantiate_asset(kAvatarPath, globalMainScene, false);
 		node.setEntityId(entityId);
 
 		const syncCallback = new SyncCallback();
@@ -58,7 +70,7 @@ export default class Avatar extends Node2D {
 	
 		syncCallback.removeCallback = () => {
 			if (globalMainScene != null) {
-				globalMainScene.remove_child(node);
+				globalMainScene.removeMainGameChildNode("avatar");
 			}
 		}
 	

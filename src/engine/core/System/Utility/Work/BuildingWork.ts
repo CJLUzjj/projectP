@@ -9,9 +9,9 @@ import { calculateWorkTime } from "../Building/CreateBuilding";
 import { Avatar } from "../../../Entity/Avatar";
 import { Monster } from "../../../Entity/Monster";
 import { BuildingWorkConfig } from "../../../Data/config/work/BuildingWork";
-import { BackpackComponent } from "../../../Component/BackpackComponent";
+import { BackpackComponent } from "../../../Component/Basic/BackpackComponent";
 import { BuildingType, Position } from "../../../Data/common";
-import { SpaceComponent } from "../../../Component/SpaceComponent";
+import { SpaceComponent } from "../../../Component/Basic/SpaceComponent";
 import { addBuilding } from "../Building/Common";
 import { HexCoord } from "../../../Data/MapData";
 

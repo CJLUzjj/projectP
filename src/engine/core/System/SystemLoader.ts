@@ -8,3 +8,6 @@ import "./Work/ProductionWorkProgressSystem";
 import "./Work/BuildingWorkProgressSystem";
 import "./Work/SyntheticWorkProgressSystem";
 import "./Work/RestWorkProgressSystem";
+import "./Basic/MovementSystem";
+import "./Map/HexMapNavigationSystem";
+import "./Basic/BasicOperationSystem";

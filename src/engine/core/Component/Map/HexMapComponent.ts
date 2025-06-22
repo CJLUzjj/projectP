@@ -162,4 +162,12 @@ export class HexMapComponent extends BaseComponent {
     getHexMap(): Map<string, HexTile> {
         return this.hexMap;
     }
+
+    canMove(coord: HexCoord): boolean {
+        const hexTile = this.getHexAt(coord);
+        if (hexTile == null) {
+            return false;
+        }
+        return hexTile.canMove;
+    }
 }

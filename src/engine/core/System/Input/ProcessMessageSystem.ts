@@ -11,7 +11,7 @@ export class ProcessMessageSystem extends BaseInputSystem {
         super(world);
         this.name = "ProcessMessage";
         this.prevSystemsName = [];
-        this.focusComponent = ["Message"];
+        this.addFocusComponent("Message");
     }
 
     processInput(entities: BaseEntity[]) {

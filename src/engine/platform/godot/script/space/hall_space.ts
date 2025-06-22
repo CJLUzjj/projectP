@@ -2,7 +2,7 @@ import { BaseComponent } from "../../../../core/Infra/Base/BaseComponent";
 import { Node2D } from "godot";
 import { globalMainScene } from "./main";
 import { instantiate_asset } from "../../common/instantiation";
-import { SyncCallback } from "../../service/syncService";
+import { SyncCallback } from "../../service/sync_service";
 import { log } from "../../../../core/Interface/Service/LogService";
 import { globalMessageService } from "../../../../core/Interface/Service/MessageService";
 import { MessageType } from "../../../../core/Interface/Common/MessageId";
@@ -48,7 +48,8 @@ export default class HallSpace extends Node2D {
 			return new SyncCallback();
 		}
 	
-		const node = <HallSpace><unknown>instantiate_asset(kHallSpacePath, globalMainScene)
+		const node = <HallSpace><unknown>instantiate_asset(kHallSpacePath, globalMainScene);
+		node.set_name("hall_space");
 		node.setEntityId(entityId);
 	
 		// 根据component的属性，设置node的属性
@@ -65,7 +66,7 @@ export default class HallSpace extends Node2D {
 	
 		syncCallback.removeCallback = () => {
 			if (globalMainScene != null) {
-				globalMainScene.remove_child(node);
+				globalMainScene.removeMainGameChildNode("hall_space");
 			}
 		}
 	

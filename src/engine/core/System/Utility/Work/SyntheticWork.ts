@@ -9,7 +9,7 @@ import { calculateWorkTime } from "../Building/CreateBuilding";
 import { Avatar } from "../../../Entity/Avatar";
 import { Monster } from "../../../Entity/Monster";
 import { SyntheticWorkConfig } from "../../../Data/config/work/SyntheticWork";
-import { BackpackComponent } from "../../../Component/BackpackComponent";
+import { BackpackComponent } from "../../../Component/Basic/BackpackComponent";
 import { Position } from "../../../Data/common";
 import { HexCoord } from "../../../Data/MapData";
 

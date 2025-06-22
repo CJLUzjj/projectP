@@ -8,7 +8,7 @@ import { BuildingPropertyComponent } from "../../../Component/Property/BuildingP
 import { calculateWorkTime } from "../Building/CreateBuilding";
 import { Avatar } from "../../../Entity/Avatar";
 import { Monster } from "../../../Entity/Monster";
-import { BackpackComponent } from "../../../Component/BackpackComponent";
+import { BackpackComponent } from "../../../Component/Basic/BackpackComponent";
 import { HexCoord } from "../../../Data/MapData";
 export function createProductionWorkProgress(
     world: World, building: Building, monsterId: number, workType: WorkType, monsterProperty: MonsterBaseProperty, hexPos: HexCoord)

@@ -1,6 +1,40 @@
-[gd_scene load_steps=2 format=3 uid="uid://b226mm7sgc6y0"]
+[gd_scene load_steps=3 format=3 uid="uid://b226mm7sgc6y0"]
 
 [ext_resource type="Script" uid="uid://byluxt6d8mpck" path="res://src/engine/platform/godot/script/avatar.ts" id="1_12yf8"]
+[ext_resource type="Texture2D" uid="uid://2np85u5ow415" path="res://assets/Sprout Lands - UI Pack - Basic pack/inventory-background.png" id="2_n5m1j"]
 
 [node name="avatar" type="Node2D"]
 script = ExtResource("1_12yf8")
+
+[node name="backpack" type="Node2D" parent="."]
+visible = false
+
+[node name="NinePatchRect" type="NinePatchRect" parent="backpack"]
+visible = false
+offset_left = -360.0
+offset_top = -240.0
+offset_right = 365.0
+offset_bottom = 216.0
+texture = ExtResource("2_n5m1j")
+patch_margin_left = 6
+patch_margin_top = 6
+patch_margin_right = 6
+patch_margin_bottom = 6
+
+[node name="close_button" type="Button" parent="backpack"]
+visible = false
+offset_left = 332.0
+offset_top = -241.0
+offset_right = 365.0
+offset_bottom = -210.0
+text = "X"
+
+[node name="backpack_button" type="Button" parent="."]
+offset_left = -427.0
+offset_top = -323.0
+offset_right = -343.0
+offset_bottom = -281.0
+text = "背包"
+
+[connection signal="pressed" from="backpack/close_button" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="backpack_button" to="." method="_on_backpack_button_pressed"]

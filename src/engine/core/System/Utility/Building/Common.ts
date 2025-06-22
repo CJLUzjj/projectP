@@ -2,7 +2,7 @@ import { BuildingType } from "../../../Data/common";
 import { World } from "../../../Infra/World";
 import { log } from "../../../Interface/Service/LogService";
 import { addDefaultBuilding } from "./CreateBuilding";
-import { PositionComponent } from "../../../Component/PositionComponent";
+import { PositionComponent } from "../../../Component/Basic/PositionComponent";
 import { Building } from "../../../Entity/Building";
 import { BuildingPropertyComponent, BuildingState } from "../../../Component/Property/BuildingPropertyComponent";
 import { BuildingListComponent } from "../../../Component/List/BuildingListComponent";
@@ -25,6 +25,10 @@ export function addBuilding(world: World, avatarId: number, spaceId: number,
     const hexTile = hexMapComponent.getHexAt({ q, r });
     if (!hexTile) {
         log.info("位置不存在HexTile", q, r);
+        return null;
+    }
+    if (hexTile.entityId != 0) {
+        log.info("位置已有建筑", q, r);
         return null;
     }
 

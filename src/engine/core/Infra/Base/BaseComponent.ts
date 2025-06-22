@@ -3,6 +3,7 @@ import { BaseEntity } from "./BaseEntity";
 export class BaseComponent {
     owner: BaseEntity;
     componentName: string;
+    isDirty: boolean = false;
 
     constructor(owner: BaseEntity, componentName: string) {
         this.owner = owner;
@@ -15,5 +16,10 @@ export class BaseComponent {
 
     getOwner(): BaseEntity {
         return this.owner;
+    }
+
+    // todo: 临时处理非直接属性赋值，后续需要定义一套标准的同步数据结构
+    setDirty(): void {
+        this.owner.getWorld().getSyncQueue().updateSyncComponent(this);
     }
 }

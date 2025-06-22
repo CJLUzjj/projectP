@@ -11,7 +11,6 @@ export class Avatar extends BaseEntity {
         this.addComponent("AvatarProperty");
         this.addComponent("Backpack");
         this.addComponent("MonsterList");
-        this.addComponent("Time");
         this.addComponent("Space");
         this.addComponent("Message");
         this.addComponent("RewardList");

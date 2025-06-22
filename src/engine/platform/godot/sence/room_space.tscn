@@ -44,6 +44,14 @@ text = "停止工作"
 layout_mode = 2
 text = "添加宝可梦"
 
+[node name="move_to" type="Button" parent="button_list/VBoxContainer"]
+layout_mode = 2
+text = "开始移动"
+
+[node name="add_obstacle" type="Button" parent="button_list/VBoxContainer"]
+layout_mode = 2
+text = "添加障碍物"
+
 [node name="Camera2D" type="Camera2D" parent="."]
 
 [connection signal="pressed" from="button_list/VBoxContainer/add_building" to="hex_map" method="_on_add_building_pressed"]
@@ -51,3 +59,5 @@ text = "添加宝可梦"
 [connection signal="pressed" from="button_list/VBoxContainer/start_work" to="hex_map" method="_on_start_work_pressed"]
 [connection signal="pressed" from="button_list/VBoxContainer/stop_work" to="hex_map" method="_on_stop_work_pressed"]
 [connection signal="pressed" from="button_list/VBoxContainer/add_monster" to="hex_map" method="_on_add_monster_pressed"]
+[connection signal="pressed" from="button_list/VBoxContainer/move_to" to="hex_map" method="_on_move_to_pressed"]
+[connection signal="pressed" from="button_list/VBoxContainer/add_obstacle" to="hex_map" method="_on_add_obstacle_pressed"]

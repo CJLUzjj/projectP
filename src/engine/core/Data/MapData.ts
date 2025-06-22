@@ -21,10 +21,12 @@ export class HexTile {
     coord: HexCoord;
     position: Position;
     entityId: number;
+    canMove: boolean;
     
     constructor(coord: HexCoord, position: Position) {
         this.coord = coord;
         this.position = position;
         this.entityId = 0;
+        this.canMove = true;
     }
 }

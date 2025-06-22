@@ -15,6 +15,7 @@ export class World {
     private isStart: boolean;
     private isLoad: boolean;
     private currentVirtualTime: number;
+    private currentDeltaTime: number;
     private id: number;
 
     private avatarId: number = 0;
@@ -28,6 +29,7 @@ export class World {
         this.isStart = false;
         this.isLoad = false;
         this.currentVirtualTime = 0;
+        this.currentDeltaTime = 0;
     }
 
     public start(): void {
@@ -67,6 +69,7 @@ export class World {
     }
 
     public tick(deltaTime: number): void {
+        this.currentDeltaTime = deltaTime;
         this.currentVirtualTime += deltaTime;
         if (!this.isStart) {
             return;
@@ -86,6 +89,10 @@ export class World {
 
     public getCurrentVirtualTime(): number {
         return this.currentVirtualTime;
+    }
+
+    public getCurrentDeltaTime(): number {
+        return this.currentDeltaTime;
     }
 
     public getId(): number {

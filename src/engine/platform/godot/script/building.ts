@@ -2,9 +2,9 @@ import { BaseComponent } from "../../../core/Infra/Base/BaseComponent";
 import { Node2D, Vector2, Sprite2D } from "godot";
 import { log } from "../../../core/Interface/Service/LogService";
 import { globalMainScene } from "./space/main";
-import { SyncCallback } from "../service/syncService";
+import { SyncCallback } from "../service/sync_service";
 import { instantiate_asset } from "../common/instantiation";
-import { PositionComponent } from "../../../core/Component/PositionComponent";
+import { PositionComponent } from "../../../core/Component/Basic/PositionComponent";
 import RoomSpace from "./space/room_space";
 import HexMap from "./map/hex_map";
 import { World } from "../../../core/Infra/World";
@@ -69,7 +69,7 @@ export default class Building extends Sprite2D {
 		}
 
 		const hexPos = positionComponent.getHexCoord();
-		const space = globalMainScene.get_node("room_space") as RoomSpace;
+		const space = globalMainScene.getMainGameNode("room_space") as RoomSpace;
 		const hexMap = space.get_node("hex_map") as HexMap;
 		log.info("hexPos", hexPos.q, hexPos.r);
 
@@ -79,9 +79,7 @@ export default class Building extends Sprite2D {
 			return new SyncCallback();
 		}
 		const node = <Building><unknown>instantiate_asset(kBuildingPath, hextile);
-		log.info("building index", node.get_index());
 		hextile.move_child(node, 1);
-		log.info("building index", node.get_index());
 		node.setEntityId(entityId);
 
 		const syncCallback = new SyncCallback();

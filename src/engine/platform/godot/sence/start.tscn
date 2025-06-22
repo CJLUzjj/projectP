@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3 uid="uid://cm78xy04eg27b"]
+
+[ext_resource type="Script" uid="uid://cb368gv7625em" path="res://src/engine/platform/godot/script/space/start_space.ts" id="1_ash2g"]
+
+[node name="StartSpace" type="Node2D"]
+script = ExtResource("1_ash2g")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_right = 1151.0
+offset_bottom = 652.0
+color = Color(0.548852, 0.610261, 0.95578, 1)
+
+[node name="StartButton" type="Button" parent="."]
+offset_left = 502.0
+offset_top = 357.0
+offset_right = 590.0
+offset_bottom = 388.0
+text = "开始新游戏"
+
+[node name="LoadButton" type="Button" parent="."]
+offset_left = 502.0
+offset_top = 409.0
+offset_right = 590.0
+offset_bottom = 442.0
+text = "加载游戏"
+
+[connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]

@@ -2,16 +2,16 @@
 // 这些导入会触发@RegisterComponent装饰器的执行
 
 // 基础组件
-import "./BackpackComponent";
-import "./SpaceComponent";
-import "./TimeComponent";
-import "./RewardListComponent";
-import "./OwnerComponent";
-import "./PositionComponent";
+import "./Basic/BackpackComponent";
+import "./Basic/SpaceComponent";
+import "./Basic/OwnerComponent";
+import "./Basic/PositionComponent";
+import "./Basic/MovementComponent";
 
 // 列表组件
 import "./List/MonsterListComponent";
 import "./List/BuildingListComponent";
+import "./List/RewardListComponent"
 
 // 输入组件
 import "./Input/MessageComponent";
@@ -31,4 +31,7 @@ import "./Work/SyntheticWorkProgressComponent";
 
 // 地图组件
 import "./Map/HexMapComponent";
+import "./Map/HexMapNavitationComponent";
+
+
 

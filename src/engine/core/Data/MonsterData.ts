@@ -85,7 +85,7 @@ export function createMonsterBaseProperty(type: MonsterType, name: string, level
         100,
         100,
         10,
-        10,
+        300,
         10,
         10,
         10,

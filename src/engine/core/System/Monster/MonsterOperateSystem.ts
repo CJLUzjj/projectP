@@ -10,7 +10,7 @@ import { Monster } from "../../Entity/Monster";
 import { MonsterPropertyComponent } from "../../Component/Property/MonsterPropertyComponent";
 import { MonsterListComponent } from "../../Component/List/MonsterListComponent";
 import { log } from "../../Interface/Service/LogService";
-import { PositionComponent } from "../../Component/PositionComponent";
+import { PositionComponent } from "../../Component/Basic/PositionComponent";
 import { HexMapComponent } from "../../Component/Map/HexMapComponent";
 
 @System(SystemType.Execute)
@@ -63,6 +63,7 @@ export class MonsterOperateSystem extends BaseExcuteSystem {
                 monsterPropertyComponent.workProperty = monsterData.workProperty;
                 monsterPropertyComponent.masterId = monsterData.masterId;
                 monsterPropertyComponent.status = monsterData.status;
+                monster.addComponent("Movement", monsterPropertyComponent.baseProperty.speed);
             }
             if (monster.hasComponent("Position")) {
                 const positionComponent = monster.getComponent("Position") as PositionComponent;

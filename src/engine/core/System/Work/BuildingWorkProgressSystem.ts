@@ -5,7 +5,7 @@ import { BaseExcuteSystem } from "../../Infra/Base/System/BaseExcuteSystem";
 import { SystemType } from "../../Infra/Decorators/SystemDecorator";
 import { World } from "../../Infra/World";
 import { log } from "../../Interface/Service/LogService";
-import { OwnerComponent } from "../../Component/OwnerComponent";
+import { OwnerComponent } from "../../Component/Basic/OwnerComponent";
 import { processStopWork } from "../Utility/Work/Common";
 import { BuildingWorkProgressData, ProductionWorkProgressData } from "../../Data/WorkData";
 import { processFinishProductionWork } from "../Utility/Work/ProductionWork";

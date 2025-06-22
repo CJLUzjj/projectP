@@ -1,5 +1,5 @@
 import { HexMapComponent } from "../../../../core/Component/Map/HexMapComponent";
-import { MarginContainer, Node2D, Vector2 } from "godot";
+import { MarginContainer, Node2D, Sprite2D, Vector2 } from "godot";
 import { instantiate_asset } from "../../common/instantiation";
 import HexTile from "./hex_tile";
 import RoomSpace from "../space/room_space";
@@ -7,11 +7,14 @@ import { HexCoord } from "../../../../core/Data/MapData";
 import { hexToPixel } from "../../../../core/Util/Position";
 import { HEX_SIZE } from "../../../../core/Data/constVal";
 import { log } from "../../../../core/Interface/Service/LogService";
+import Monster from "../monster";
+import { notify } from "../../../../core/Interface/Service/NotifyService";
 
 const kHexTilePath = "res://src/engine/platform/godot/sence/hex_tile.tscn";
 export default class HexMap extends Node2D {
     private hexMap: Map<string, Node2D> = new Map();
     private currentClickedKey: string = "";
+    private moveEntityId: number = 0;
 
 	// Called when the node enters the scene tree for the first time.
 	_ready(): void {
@@ -62,6 +65,22 @@ export default class HexMap extends Node2D {
         this.onHexTileClicked(hexTile);
     }
 
+    _on_move_to_pressed(): void {
+        const hexTile = this.hexMap.get(this.currentClickedKey) as HexTile;
+        if (hexTile) {
+            this.onMoveToClicked(this.moveEntityId, hexTile);
+        }
+        this.onHexTileClicked(hexTile);
+    }
+
+    _on_add_obstacle_pressed(): void {
+        const hexTile = this.hexMap.get(this.currentClickedKey) as HexTile;
+        if (hexTile) {
+            this.onAddObstacleClicked(hexTile);
+        }
+        this.onHexTileClicked(hexTile);
+    }
+
     updateHexMap(hexMap: HexMapComponent): void {
         for (const [key, hexTile] of hexMap.getHexMap()) {
             if (!this.hexMap.has(key)) {
@@ -72,8 +91,20 @@ export default class HexMap extends Node2D {
                     hexTileNode.coord = hexTile.coord;
                     const position = new Vector2(hexTile.position.x, hexTile.position.y);
                     hexTileNode.position = position;
+                    if (!hexTile.canMove) {
+                        const obstacle = hexTileNode.get_node("obstacle") as Sprite2D;
+                        if (obstacle) {
+                            obstacle.visible = true;
+                        }
+                    }
                     this.hexMap.set(key, hexTileNode);
                     log.info("add hex tile", key);
+                }
+            } else {
+                const hexTileNode = this.hexMap.get(key) as HexTile;
+                const obstacle = hexTileNode.get_node("obstacle") as Sprite2D;
+                if (obstacle) {
+                    obstacle.visible = !hexTile.canMove;
                 }
             }
         }
@@ -111,6 +142,7 @@ export default class HexMap extends Node2D {
             if (this.currentClickedKey == hexTile.key) {
                 this.currentClickedKey = "";
                 this.setListVisible(false, {q: 0, r: 0});
+                this.moveEntityId = 0;
             } else {
                 this.currentClickedKey = hexTile.key;
                 this.setListVisible(true, hexTile.coord);
@@ -133,7 +165,18 @@ export default class HexMap extends Node2D {
         roomSpace.addMonster(hexTile.coord.q, hexTile.coord.r);
     }
 
+    onMoveToClicked(entityId: number, endHexTile: HexTile): void {
+        if (this.moveEntityId == 0) {
+            return;
+        }
+        const roomSpace = this.get_parent() as RoomSpace;
+        roomSpace.moveTo(entityId, endHexTile.coord.q, endHexTile.coord.r);
+    }
 
+    onAddObstacleClicked(hexTile: HexTile): void {
+        const roomSpace = this.get_parent() as RoomSpace;
+        roomSpace.addObstacle(hexTile.coord.q, hexTile.coord.r);
+    }
 
     getHexTile(key: string): HexTile | null {
         const hexTile = this.hexMap.get(key) as HexTile;
@@ -141,5 +184,9 @@ export default class HexMap extends Node2D {
             return hexTile;
         }
         return null;
+    }
+
+    setMoveEntityId(entityId: number): void {
+        this.moveEntityId = entityId;
     }
 }

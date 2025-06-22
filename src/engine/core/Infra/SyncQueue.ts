@@ -88,7 +88,6 @@ export class SyncQueue {
             this.componentSyncQueue.set(entityId, new Map<string, BaseComponent>());
             this.componentSyncQueue.get(entityId)?.set(component.getComponentName(), component);
         }
-        log.info("updateSyncComponent", entityId, component.getComponentName());
     }
 
     public tick() {

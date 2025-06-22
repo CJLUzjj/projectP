@@ -10,6 +10,8 @@ declare module "godot" {
                     start_work: Button<{}>;
                     stop_work: Button<{}>;
                     add_monster: Button<{}>;
+                    move_to: Button<{}>;
+                    add_obstacle: Button<{}>;
                 }>;
             }>;
             Camera2D: Camera2D<{}>;

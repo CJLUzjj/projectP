@@ -2,7 +2,7 @@
 import { InputEvent, InputEventMouseButton, MouseButton, Node2D } from "godot";
 import { globalMainScene } from "./main";
 import { log } from "../../../../core/Interface/Service/LogService";
-import { SyncCallback } from "../../service/syncService";
+import { SyncCallback } from "../../service/sync_service";
 import { instantiate_asset } from "../../common/instantiation";
 import { BaseComponent } from "../../../../core/Infra/Base/BaseComponent";
 import { globalMessageService, MessageService } from "../../../../core/Interface/Service/MessageService";
@@ -77,7 +77,7 @@ export default class RoomSpace extends Node2D {
 	
 		syncCallback.removeCallback = () => {
 			if (globalMainScene != null) {
-				globalMainScene.remove_child(node);
+				globalMainScene.removeMainGameChildNode("room_space");
 			}
 		}
 	
@@ -130,6 +130,39 @@ export default class RoomSpace extends Node2D {
 				monsterType: "Goblin",
 				name: "xiaolv",
 				level: 1,
+				q: q,
+				r: r,
+			}
+		);
+	}
+
+	moveTo(entityId: number, q: number, r: number): void {
+		if (globalAvatar == null) {
+			log.error("globalAvatar is null");
+			return;
+		}
+		globalMessageService.pushMessage(
+			MessageType.MOVE_TO,
+			{
+				avatarId: globalAvatar.getEntityId(),
+				spaceId: this.getEntityId(),
+				entityId: entityId,
+				q: q,
+				r: r,
+			}
+		);
+	}
+
+	addObstacle(q: number, r: number): void {
+		if (globalAvatar == null) {
+			log.error("globalAvatar is null");
+			return;
+		}
+		globalMessageService.pushMessage(
+			MessageType.ADD_OBSTACLE,
+			{
+				avatarId: globalAvatar.getEntityId(),
+				spaceId: this.getEntityId(),
 				q: q,
 				r: r,
 			}
