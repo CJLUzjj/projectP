@@ -1,4 +1,4 @@
-import { BuildingType, Position } from "./common";
+import { BuildingType, Position, WorkStatus } from "./common";
 import { HexCoord } from "./MapData";
 
 // 工作类型枚举
@@ -161,5 +161,24 @@ export class SyntheticWorkProgressData extends BaseWorkProgressData {
     constructor(monsterId: number, workType: WorkType, startTime: number, endTime: number, progress: number, buildingId: number, hexPos: HexCoord, workConfig: SyntheticWork) {
         super(monsterId, workType, startTime, endTime, progress, buildingId, hexPos);
         this.workConfig = workConfig;
+    }
+}
+
+export class WorkFlowData {
+    avatarId: number;
+    spaceId: number;
+    workType: WorkType;
+    status: WorkStatus;
+    monsterId: number;
+    buildingId: number;
+    hexPos: HexCoord;
+    constructor(avatarId: number, spaceId: number, workType: WorkType, status: WorkStatus, monsterId: number, hexPos: HexCoord) {
+        this.avatarId = avatarId;
+        this.spaceId = spaceId;
+        this.workType = workType;
+        this.status = status;
+        this.monsterId = monsterId;
+        this.buildingId = 0;
+        this.hexPos = hexPos;
     }
 }

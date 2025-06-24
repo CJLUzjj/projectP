@@ -71,3 +71,12 @@ export interface Position {
     x: number;
     y: number;
 }
+
+export enum WorkStatus {
+    None = "None",
+    Moving = "Moving",
+    MovingDone = "MovingDone",
+    Working = "Working",
+    Finished = "Finished",
+    Canceled = "Canceled",
+}

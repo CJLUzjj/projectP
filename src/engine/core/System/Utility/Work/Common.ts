@@ -25,6 +25,7 @@ import { SyntheticWorkProgressComponent } from "../../../Component/Work/Syntheti
 import { RoomSpace } from "../../../Entity/Space/RoomSpace";
 import { HexMapComponent } from "../../../Component/Map/HexMapComponent";
 import { HexCoord } from "../../../Data/MapData";
+import { PositionComponent } from "../../../Component/Basic/PositionComponent";
 export const workIndex: Map<WorkType, WorkBaseType> = new Map();
 
 export function buildIndex() {
@@ -109,6 +110,7 @@ export function processStartWork(world: World, avatarId: number, spaceId: number
         return false;
     } else if (buildingId != 0 && baseType == WorkBaseType.Building) {
         log.info("位置存在建筑", hexPos.q, hexPos.r);
+        return false;
     } else {
         building = world.getEntitiesManager().getEntity(buildingId) as Building;
         if (!building) {
@@ -116,7 +118,16 @@ export function processStartWork(world: World, avatarId: number, spaceId: number
             return false;
         }
     }
-    
+
+    const positionComponent = monster.getComponent("Position") as PositionComponent;
+    if (positionComponent) {
+        const hexCoord = positionComponent.getHexCoord();
+        if (hexCoord.q != hexPos.q || hexCoord.r != hexPos.r) {
+            log.info("怪物位置与建筑位置不一致", monsterId, hexCoord, hexPos);
+            return false;
+        }
+    }
+
     if (baseType == WorkBaseType.Building) {
         const workConfig = BuildingWorkConfig.get(workType);
         if (!workConfig) {

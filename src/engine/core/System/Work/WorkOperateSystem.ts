@@ -6,8 +6,10 @@ import { BaseEntity } from "../../Infra/Base/BaseEntity";
 import { processStartWork, processStopWork} from "../Utility/Work/Common";
 import { MessageComponent } from "../../Component/Input/MessageComponent";
 import { MessageParams, MessageType } from "../../Interface/Common/MessageId";
-import { WorkType } from "../../Data/WorkData";
+import { WorkFlowData, WorkType } from "../../Data/WorkData";
 import { log } from "../../Interface/Service/LogService";
+import { WorkFlowComponent } from "../../Component/Work/WorkFlowComponent";
+import { WorkStatus } from "../../Data/common";
 
 // 目前是专属于建筑的一个system
 @System(SystemType.Execute)
@@ -37,13 +39,24 @@ export class WorkOperateSystem extends BaseExcuteSystem {
             }
             const params = message.args as MessageParams[MessageType.START_WORK];
             const workType = params.workType as WorkType;
-            if (!processStartWork(this.world, params.avatarId, params.spaceId, workType, params.monsterId, {q: params.q, r: params.r})) {
-                log.info("工作开始失败", params.avatarId, params.workType, params.monsterId);
+            const space = this.world.getEntitiesManager().getEntity(params.spaceId);
+            if (!space) {
+                log.info("空间不存在", params.spaceId);
+                continue;
             }
+            let workFlow = space.getComponent("WorkFlow") as WorkFlowComponent;
+            if (!workFlow) {
+                workFlow = space.addComponent("WorkFlow") as WorkFlowComponent;
+            }
+            workFlow.addWorkFlow(
+                new WorkFlowData(
+                    params.avatarId, params.spaceId, workType, WorkStatus.None, params.monsterId, {q: params.q, r: params.r}
+                ));
             log.info("工作开始成功", params.avatarId, params.workType, params.monsterId);
         }
     }
 
+    // todo: 走workflow的canceled状态
     processStopWorkRequest(messageComponent: MessageComponent) {
         while (true) {
             const message = messageComponent.popMessage(MessageType.STOP_WORK);

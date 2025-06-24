@@ -157,10 +157,10 @@ export class HexMapNavigationSystem extends BaseExcuteSystem {
         log.info("已到达目标位置");
         notify.notify("已到达目标位置");
 
-        const entity = navComponent.getOwner();
-        if (entity) {
-            entity.removeComponent("HexMapNavitation");
-        }
+        // const entity = navComponent.getOwner();
+        // if (entity) {
+        //     entity.removeComponent("HexMapNavitation");
+        // }
         
         // 可以在这里添加到达目标后的逻辑
         // 比如触发事件、播放动画等
@@ -172,10 +172,10 @@ export class HexMapNavigationSystem extends BaseExcuteSystem {
         log.warn("路径寻找失败");
         notify.notify("路径寻找失败");
 
-        const entity = navComponent.getOwner();
-        if (entity) {
-            entity.removeComponent("HexMapNavitation");
-        }
+        // const entity = navComponent.getOwner();
+        // if (entity) {
+        //     entity.removeComponent("HexMapNavitation");
+        // }
     }
 
     private getHexMapComponent(): HexMapComponent | null {

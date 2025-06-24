@@ -28,6 +28,7 @@ import "./Work/BuildingWorkProgressComponent";
 import "./Work/ProductionWorkProgressComponent";
 import "./Work/RestWorkProgressComponent";
 import "./Work/SyntheticWorkProgressComponent";
+import "./Work/WorkFlowComponent";
 
 // 地图组件
 import "./Map/HexMapComponent";
