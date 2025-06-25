@@ -169,8 +169,10 @@ export class WorkFlowData {
     spaceId: number;
     workType: WorkType;
     status: WorkStatus;
+    lastStatus: WorkStatus;
     monsterId: number;
     buildingId: number;
+    naviAddTimestamp: number;
     hexPos: HexCoord;
     constructor(avatarId: number, spaceId: number, workType: WorkType, status: WorkStatus, monsterId: number, hexPos: HexCoord) {
         this.avatarId = avatarId;
@@ -180,5 +182,7 @@ export class WorkFlowData {
         this.monsterId = monsterId;
         this.buildingId = 0;
         this.hexPos = hexPos;
+        this.lastStatus = WorkStatus.None;
+        this.naviAddTimestamp = 0;
     }
 }

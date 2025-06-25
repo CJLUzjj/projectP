@@ -56,7 +56,6 @@ export class WorkOperateSystem extends BaseExcuteSystem {
         }
     }
 
-    // todo: 走workflow的canceled状态
     processStopWorkRequest(messageComponent: MessageComponent) {
         while (true) {
             const message = messageComponent.popMessage(MessageType.STOP_WORK);
@@ -64,9 +63,17 @@ export class WorkOperateSystem extends BaseExcuteSystem {
                 break;
             }
             const params = message.args as MessageParams[MessageType.STOP_WORK];
-            if (!processStopWork(this.world, params.avatarId, params.spaceId, params.monsterId, {q: params.q, r: params.r})) {
-                log.info("工作停止失败", params.avatarId, params.spaceId, params.monsterId);
+            const space = this.world.getEntitiesManager().getEntity(params.spaceId);
+            if (!space) {
+                log.info("空间不存在", params.spaceId);
+                continue;
             }
+            const workFlow = space.getComponent("WorkFlow") as WorkFlowComponent;
+            if (!workFlow) {
+                log.info("工作流不存在", params.spaceId);
+                continue;
+            }
+            workFlow.cancelWorkFlow(params.monsterId);
             log.info("工作停止成功", params.avatarId, params.spaceId, params.monsterId);
         }
     }

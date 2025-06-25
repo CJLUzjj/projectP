@@ -8,7 +8,8 @@ export enum NavigationState {
     Calculating = "Calculating", // 计算路径中
     Moving = "Moving",       // 移动中
     Arrived = "Arrived",     // 已到达
-    Failed = "Failed"        // 路径计算失败
+    Failed = "Failed",       // 路径计算失败
+    Finished = "Finished"   // 移动完成
 }
 
 export interface PathNode {
@@ -29,13 +30,18 @@ export class HexMapNavitationComponent extends BaseComponent {
     private currentPathIndex: number = 0;
     private state: NavigationState = NavigationState.Idle;
     private pathNode: PathNode | null = null;
+    private finishSelf: boolean = false;
+    // 用于让系统判断这个关注的component是否是自己关注的
+    private addTimestamp: number = 0;
 
-    constructor(owner: BaseEntity, startHexCoord: HexCoord, targetHexCoord: HexCoord, spaceId: number) {
+    constructor(owner: BaseEntity, startHexCoord: HexCoord, targetHexCoord: HexCoord, spaceId: number, addTimestamp: number, finishSelf: boolean = false) {
         super(owner, "HexMapNavitation");
         this.startHexCoord = startHexCoord;
         this.currentHexCoord = startHexCoord;
         this.targetHexCoord = targetHexCoord;
         this.spaceId = spaceId;
+        this.finishSelf = finishSelf;
+        this.addTimestamp = addTimestamp;
     }
 
     // 获取当前状态
@@ -135,5 +141,13 @@ export class HexMapNavitationComponent extends BaseComponent {
     // 获取路径节点
     getPathNode(): PathNode | null {
         return this.pathNode;
+    }
+
+    isFinishSelf(): boolean {
+        return this.finishSelf;
+    }
+
+    getAddTimestamp(): number {
+        return this.addTimestamp;
     }
 }

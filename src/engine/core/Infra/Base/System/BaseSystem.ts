@@ -15,8 +15,8 @@ export abstract class BaseSystem {
         this.world = world;
     }
 
-    addPrevSystem(system: BaseSystem): void {
-        this.prevSystemsName.push(system.name);
+    addPrevSystem(systemName: string): void {
+        this.prevSystemsName.push(systemName);
     }
 
     addFocusComponent(component: string): void {

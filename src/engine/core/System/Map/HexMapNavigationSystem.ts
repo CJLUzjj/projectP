@@ -60,6 +60,10 @@ export class HexMapNavigationSystem extends BaseExcuteSystem {
                     // 路径计算失败，重置状态
                     this.handlePathfindingFailure(hexMapNavitationComponent, movementComponent);
                     break;
+                case NavigationState.Finished:
+                    // 移动完成，重置状态
+                    this.handleFinished(hexMapNavitationComponent, movementComponent);
+                    break;
             }
         }
     }
@@ -157,10 +161,9 @@ export class HexMapNavigationSystem extends BaseExcuteSystem {
         log.info("已到达目标位置");
         notify.notify("已到达目标位置");
 
-        // const entity = navComponent.getOwner();
-        // if (entity) {
-        //     entity.removeComponent("HexMapNavitation");
-        // }
+        if (navComponent.isFinishSelf()) {
+            navComponent.setState(NavigationState.Finished);
+        }
         
         // 可以在这里添加到达目标后的逻辑
         // 比如触发事件、播放动画等
@@ -172,10 +175,20 @@ export class HexMapNavigationSystem extends BaseExcuteSystem {
         log.warn("路径寻找失败");
         notify.notify("路径寻找失败");
 
-        // const entity = navComponent.getOwner();
-        // if (entity) {
-        //     entity.removeComponent("HexMapNavitation");
-        // }
+        if (navComponent.isFinishSelf()) {
+            navComponent.setState(NavigationState.Finished);
+        }
+    }
+
+    private handleFinished(navComponent: HexMapNavitationComponent, movementComponent: MovementComponent): void {
+        // 停止移动
+        movementComponent.setDirection({ x: 0, y: 0 });
+        movementComponent.setMoveSpeed(0);
+        log.info("移动完成,销毁导航组件");
+        const entity = navComponent.getOwner();
+        if (entity) {
+            entity.removeComponent("HexMapNavitation");
+        }
     }
 
     private getHexMapComponent(): HexMapComponent | null {

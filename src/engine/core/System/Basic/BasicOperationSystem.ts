@@ -74,8 +74,7 @@ export class BasicOperationSystem extends BaseExcuteSystem {
 
             // todo: 校验entityId是否属于avatar
 
-            // todo: HexMapNavitationComponent需要清理
-            entity.addComponent("HexMapNavitation", positionComponent.getHexCoord(), { q: params.q, r: params.r }, params.spaceId);
+            entity.addComponent("HexMapNavitation", positionComponent.getHexCoord(), { q: params.q, r: params.r }, params.spaceId, true);
         }
     }
 }

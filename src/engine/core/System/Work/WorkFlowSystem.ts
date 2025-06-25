@@ -22,8 +22,13 @@ export class WorkFlowSystem extends BaseExcuteSystem {
     constructor(world: World) {
         super(world);
         this.name = "WorkFlow";
-        this.prevSystemsName = ["WorkOperate", "BuildingWorkProgress", "ProductionWorkProgress", "RestWorkProgress", "SyntheticWorkProgress"];
-        this.focusComponent = ["WorkFlow"];
+        this.addPrevSystem("WorkOperate");
+        this.addPrevSystem("BasicOperation");
+        this.addPrevSystem("BuildingWorkProgress");
+        this.addPrevSystem("ProductionWorkProgress");
+        this.addPrevSystem("RestWorkProgress");
+        this.addPrevSystem("SyntheticWorkProgress");
+        this.addFocusComponent("WorkFlow");
     }
 
     execute(entities: BaseEntity[]) {
@@ -59,7 +64,8 @@ export class WorkFlowSystem extends BaseExcuteSystem {
                 if (positionComponent) {
                     const hexCoord = positionComponent.getHexCoord();
                     if (hexCoord.q != workFlow.hexPos.q || hexCoord.r != workFlow.hexPos.r) {
-                        monster.addComponent("HexMapNavitation", hexCoord, workFlow.hexPos, workFlow.buildingId);
+                        workFlow.naviAddTimestamp = this.world.getCurrentVirtualTime();
+                        monster.addComponent("HexMapNavitation", hexCoord, workFlow.hexPos, workFlow.buildingId, workFlow.naviAddTimestamp);
                         workFlow.status = WorkStatus.Moving;
                     } else {
                         workFlow.status = WorkStatus.MovingDone;
@@ -69,10 +75,16 @@ export class WorkFlowSystem extends BaseExcuteSystem {
             case WorkStatus.Moving:
                 const hexMapNavitation = monster.getComponent("HexMapNavitation") as HexMapNavitationComponent;
                 if (hexMapNavitation) {
+                    if (hexMapNavitation.getAddTimestamp() != workFlow.naviAddTimestamp) {
+                        log.warn("导航组件被其他系统替换了", workFlow.monsterId, workFlow.buildingId, workFlow.hexPos);
+                        return true;
+                    }
                     if (hexMapNavitation.getState() == NavigationState.Arrived) {
                         workFlow.status = WorkStatus.MovingDone;
+                        hexMapNavitation.setState(NavigationState.Finished);
                     } else if (hexMapNavitation.getState() == NavigationState.Failed) {
                         log.error("路径寻找失败", workFlow.monsterId, workFlow.buildingId, workFlow.hexPos);
+                        hexMapNavitation.setState(NavigationState.Finished);
                         return true;
                     }
                 }
@@ -156,11 +168,21 @@ export class WorkFlowSystem extends BaseExcuteSystem {
                 }
                 break;
             case WorkStatus.Finished:
+                log.info("工作完成", workFlow.monsterId, workFlow.buildingId, workFlow.hexPos);
                 return true;
             case WorkStatus.Canceled:
-                // todo: 取消工作需要分取消移动和取消工作两种情况
-                processStopWork(this.world, workFlow.avatarId, workFlow.spaceId, workFlow.monsterId, workFlow.hexPos, false);
+            {
+                log.info("工作取消", workFlow.monsterId, workFlow.buildingId, workFlow.hexPos, workFlow.lastStatus);
+                if (workFlow.lastStatus == WorkStatus.Moving) {
+                    const hexMapNavitation = monster.getComponent("HexMapNavitation") as HexMapNavitationComponent;
+                    if (hexMapNavitation) {
+                        hexMapNavitation.setState(NavigationState.Finished);
+                    }
+                } else if (workFlow.lastStatus == WorkStatus.Working) {
+                    processStopWork(this.world, workFlow.avatarId, workFlow.spaceId, workFlow.monsterId, workFlow.hexPos, false);
+                }
                 return true;
+            }
         }
         return false;
     }
