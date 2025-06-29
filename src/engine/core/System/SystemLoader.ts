@@ -10,4 +10,5 @@ import "./Work/SyntheticWorkProgressSystem";
 import "./Work/RestWorkProgressSystem";
 import "./Basic/MovementSystem";
 import "./Map/HexMapNavigationSystem";
+import "./Monster/RandomWalkSystem";
 import "./Basic/BasicOperationSystem";

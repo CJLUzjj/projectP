@@ -20,7 +20,7 @@ export interface PathNode {
     parent: PathNode | null;
 }
 
-@RegisterComponent("HexMapNavitation")
+@RegisterComponent("HexMapNavitation", "State")
 export class HexMapNavitationComponent extends BaseComponent {
     private startHexCoord: HexCoord;
     private currentHexCoord: HexCoord;
@@ -32,16 +32,15 @@ export class HexMapNavitationComponent extends BaseComponent {
     private pathNode: PathNode | null = null;
     private finishSelf: boolean = false;
     // 用于让系统判断这个关注的component是否是自己关注的
-    private addTimestamp: number = 0;
+    private version: number = 0;
 
-    constructor(owner: BaseEntity, startHexCoord: HexCoord, targetHexCoord: HexCoord, spaceId: number, addTimestamp: number, finishSelf: boolean = false) {
+    constructor(owner: BaseEntity, startHexCoord: HexCoord, targetHexCoord: HexCoord, spaceId: number, finishSelf: boolean = false) {
         super(owner, "HexMapNavitation");
         this.startHexCoord = startHexCoord;
         this.currentHexCoord = startHexCoord;
         this.targetHexCoord = targetHexCoord;
         this.spaceId = spaceId;
         this.finishSelf = finishSelf;
-        this.addTimestamp = addTimestamp;
     }
 
     // 获取当前状态
@@ -126,11 +125,17 @@ export class HexMapNavitationComponent extends BaseComponent {
     }
 
     // 重置导航
-    reset(): void {
+    reset(startHexCoord: HexCoord, targetHexCoord: HexCoord, spaceId: number, finishSelf: boolean = false): void {
+        this.startHexCoord = startHexCoord;
+        this.currentHexCoord = startHexCoord;
+        this.targetHexCoord = targetHexCoord;
+        this.spaceId = spaceId;
+        this.finishSelf = finishSelf;
+        this.state = NavigationState.Idle;
         this.path = [];
         this.currentPathIndex = 0;
-        this.state = NavigationState.Idle;
         this.pathNode = null;
+        this.version++;
     }
 
     // 设置路径节点（用于A*算法）
@@ -147,7 +152,7 @@ export class HexMapNavitationComponent extends BaseComponent {
         return this.finishSelf;
     }
 
-    getAddTimestamp(): number {
-        return this.addTimestamp;
+    getVersion(): number {
+        return this.version;
     }
 }

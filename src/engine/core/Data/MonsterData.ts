@@ -1,6 +1,6 @@
 import { MonsterIdGenerator } from '../Util/IdGenerator';
 import { WorkAbility, WorkType } from './WorkData';
-import { MonsterType, PalStatus } from './common';
+import { MonsterType } from './common';
 import { MonsterWorkAbilityConfig } from './config/MonsterWorkAbilityConfig';
 
 export class MonsterBaseProperty {
@@ -56,25 +56,16 @@ export class MonsterWorkProperty {
     constructor(workAbilities: WorkAbility[] = [],
                 stamina: number = 0,
                 maxStamina: number = 0,
-                workExperience: Map<WorkType, number> = new Map(),
-                currentWorkType: WorkType = WorkType.None,
-                workStartTime: Date = new Date(),
-                assignedBuildingId: number = 0) {
+                workExperience: Map<WorkType, number> = new Map()) {
         this.workAbilities = workAbilities;
         this.stamina = stamina;
         this.maxStamina = maxStamina;
         this.workExperience = workExperience;
-        this.currentWorkType = currentWorkType;
-        this.workStartTime = workStartTime;
-        this.assignedBuildingId = assignedBuildingId;
     }
     workAbilities: WorkAbility[];
     stamina: number;
     maxStamina: number;
     workExperience: Map<WorkType, number>;
-    currentWorkType: WorkType;
-    workStartTime: Date;
-    assignedBuildingId: number;
 }
 
 export function createMonsterBaseProperty(type: MonsterType, name: string, level: number): MonsterBaseProperty {
@@ -104,9 +95,6 @@ export function createMonsterWorkProperty(type: MonsterType, level: number): Mon
         workAbilities,
         100,
         100,
-        new Map(),
-        WorkType.None,
-        new Date(),
-        0
+        new Map()
     );
 }

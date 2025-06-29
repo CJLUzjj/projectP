@@ -143,6 +143,8 @@ export class HexMapNavigationSystem extends BaseExcuteSystem {
             // 如果没有更多路径点，说明已经到达最终目标
             if (!hasMorePoints) {
                 navComponent.setState(NavigationState.Arrived);
+                log.info("已到达目标位置");
+                notify.notify("已到达目标位置");
                 return;
             }
         }
@@ -158,8 +160,6 @@ export class HexMapNavigationSystem extends BaseExcuteSystem {
     private handleArrival(navComponent: HexMapNavitationComponent, movementComponent: MovementComponent): void {
         // 停止移动
         movementComponent.setDirection({ x: 0, y: 0 });
-        log.info("已到达目标位置");
-        notify.notify("已到达目标位置");
 
         if (navComponent.isFinishSelf()) {
             navComponent.setState(NavigationState.Finished);
@@ -315,5 +315,15 @@ export class HexMapNavigationSystem extends BaseExcuteSystem {
 
     private coordToKey(coord: HexCoord): string {
         return `${coord.q},${coord.r}`;
+    }
+
+    onComponentDestroying(entity: BaseEntity, componentName: string): boolean {
+        if (componentName === "HexMapNavitation") {
+            const movementComponent = entity.getComponent("Movement") as MovementComponent;
+            if (movementComponent) {
+                movementComponent.setDirection({ x: 0, y: 0 });
+            }
+        }
+        return true;
     }
 }

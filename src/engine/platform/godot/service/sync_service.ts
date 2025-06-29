@@ -36,7 +36,7 @@ export class GodotPropertySyncService extends PropertySyncService {
     }
 
     public onSyncComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const syncCallback = syncMap.get(entityId);
         if (syncCallback) {
             syncCallback.syncCallback(component);
@@ -45,7 +45,7 @@ export class GodotPropertySyncService extends PropertySyncService {
     }
 
     public onAddComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const componentMap = data.get(entityId);
         if (componentMap) {
             componentMap.set(component.getComponentName(), component);
@@ -65,15 +65,15 @@ export class GodotPropertySyncService extends PropertySyncService {
                 syncCallback.addCallback(component);
             }
         }
-        log.info("addComponent", component.owner.getId(), component.getComponentName());
+        log.info("addComponent", component.getOwner().getId(), component.getComponentName());
     }
 
     public onRemoveComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const componentMap = data.get(entityId);
         if (componentMap) {
             componentMap.delete(component.getComponentName());
         }
-        log.info("removeComponent", component.owner.getId(), component.getComponentName());
+        log.info("removeComponent", component.getOwner().getId(), component.getComponentName());
     }
 }

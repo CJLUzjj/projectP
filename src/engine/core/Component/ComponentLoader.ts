@@ -29,10 +29,12 @@ import "./Work/ProductionWorkProgressComponent";
 import "./Work/RestWorkProgressComponent";
 import "./Work/SyntheticWorkProgressComponent";
 import "./Work/WorkFlowComponent";
+import "./Work/MonsterWorkComponent";
 
 // 地图组件
 import "./Map/HexMapComponent";
 import "./Map/HexMapNavitationComponent";
 
-
+// AI组件
+import "./AI/RandomWalkComponent";
 

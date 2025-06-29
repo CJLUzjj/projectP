@@ -7,6 +7,7 @@ import { BaseReactiveSystem } from "./Base/System/BaseReactiveSystem";
 import { BaseInputSystem } from "./Base/System/BaseInputSystem";
 import { SystemRegistry, SystemType } from "./Decorators/SystemDecorator";
 import { log } from "../Interface/Service/LogService";
+import { BaseEntity } from "./Base/BaseEntity";
 
 export class SystemsManager {
     private initializeSystems: BaseInitializeSystem[] = [];
@@ -140,15 +141,39 @@ export class SystemsManager {
 
     public tick(): void {
         for (const system of this.inputSystems) {
-            const entities = system.getEntities();
+            const entities = this.processComponent(system, system.getEntities());
             system.processInput(entities);
         }
         for (const system of this.excuteSystems) {
-            const entities = system.getEntities();
+            const entities = this.processComponent(system, system.getEntities());
             system.execute(entities);
         }
         for (const system of this.cleanSystems) {
             system.clean();
         }
+    }
+
+    public processComponent(system: BaseSystem, entities: BaseEntity[]): BaseEntity[] {
+        const result: BaseEntity[] = [];
+        const focusComponents = system.getFocusComponent();
+        for (const entity of entities) {
+            let needPush = true;
+            const destroyingComponents = entity.getDestroyingComponents();
+            for (const component of destroyingComponents) {
+                for (const focusComponent of focusComponents) {
+                    if (component.getComponentName() === focusComponent) {
+                        if (system.onComponentDestroying(entity, component.getComponentName())) {
+                            entity.removeDestroyingComponent(component.getComponentName());
+                            entity.realRemoveComponent(component.getComponentName());
+                        }
+                        needPush = false;
+                    }
+                }
+            }
+            if (needPush) {
+                result.push(entity);
+            }
+        }
+        return result;
     }
 }

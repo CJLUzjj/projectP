@@ -1,5 +1,5 @@
 import { WorkType } from "../../../Data/WorkData";
-import { MonsterType, PalStatus, WorkBaseType, Position } from "../../../Data/common";
+import { MonsterType, WorkBaseType, Position } from "../../../Data/common";
 import { MonsterWorkAbilityConfig } from "../../../Data/config/MonsterWorkAbilityConfig";
 import { WorkAbility } from "../../../Data/WorkData";
 import { Building } from "../../../Entity/Building";
@@ -26,6 +26,7 @@ import { RoomSpace } from "../../../Entity/Space/RoomSpace";
 import { HexMapComponent } from "../../../Component/Map/HexMapComponent";
 import { HexCoord } from "../../../Data/MapData";
 import { PositionComponent } from "../../../Component/Basic/PositionComponent";
+import { MonsterWorkComponent } from "../../../Component/Work/MonsterWorkComponent";
 export const workIndex: Map<WorkType, WorkBaseType> = new Map();
 
 export function buildIndex() {
@@ -147,12 +148,15 @@ export function processStartWork(world: World, avatarId: number, spaceId: number
         return false;
     }
 
+    if (!monster.addComponent("MonsterWork", workType, buildingId, world.getCurrentVirtualTime())) {
+        log.info("怪物不能添加MonsterWork组件", monster.getId());
+        return false;
+    }
+
     const buildingPropertyComponent = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
     buildingPropertyComponent.addWorkers(monsterId);
 
     const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
-    monsterPropertyComponent.startWork(workType, buildingId, world.getCurrentVirtualTime());
-
     if (baseType == WorkBaseType.Production) {
         createProductionWorkProgress(world, building, monsterId, workType, monsterPropertyComponent.baseProperty, hexPos);
     } else if (baseType == WorkBaseType.Building) {
@@ -166,6 +170,11 @@ export function processStartWork(world: World, avatarId: number, spaceId: number
 }
 
 function checkCanStartWork(avatar: Avatar, monster: Monster, building: Building, workType: WorkType): boolean {
+    if (!monster.canAddComponent("MonsterWork")) {
+        log.info("怪物不能添加MonsterWork组件", monster.getId());
+        return false;
+    }
+
     const workConfig = WorkInfoConfig.get(workType);
     const baseType = workIndex.get(workType);
     if (!workConfig) {
@@ -179,11 +188,6 @@ function checkCanStartWork(avatar: Avatar, monster: Monster, building: Building,
     }
 
     const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
-    if (monsterPropertyComponent.status != PalStatus.Idle) {
-        log.info("怪物状态不是Idle", monster.getId());
-        return false;
-    }
-
     if (monsterPropertyComponent.baseProperty.level < workConfig.requiredLevel) {
         log.info("怪物等级不足", monster.getId());
         return false;
@@ -292,8 +296,9 @@ export function processStopWork(world: World, avatarId: number, spaceId: number,
     }
 
     const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
+    const monsterWorkComponent = monster.getComponent("MonsterWork") as MonsterWorkComponent;
     
-    const workType = monsterPropertyComponent.workProperty.currentWorkType;
+    const workType = monsterWorkComponent.currentWorkType;
     const baseType = workIndex.get(workType);
     // todo: 抽象化
     if (isComplete) {
@@ -320,7 +325,7 @@ export function processStopWork(world: World, avatarId: number, spaceId: number,
             log.info("工作配置不存在", workType);
             return false;
         }
-        monsterPropertyComponent.onFinishWork(baseExp, costStamina);
+        monsterPropertyComponent.onFinishWork(workType, baseExp, costStamina);
     } else {
         if (baseType == WorkBaseType.Building) {
             processCancelBuildingWork(world, avatar, workType);
@@ -351,7 +356,7 @@ export function processStopWork(world: World, avatarId: number, spaceId: number,
         }
     }
 
-    monsterPropertyComponent.stopWork();
+    monster.removeComponent("MonsterWork");
 
     const buildingPropertyComponent = building.getComponent("BuildingProperty") as BuildingPropertyComponent;
     buildingPropertyComponent.removeWorkers(monsterId);

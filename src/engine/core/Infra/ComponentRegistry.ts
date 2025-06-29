@@ -14,9 +14,9 @@ type ComponentFactory<T extends BaseComponent = BaseComponent> = (owner: BaseEnt
  * Component注册器装饰器
  * 用于注册Component类
  */
-export function RegisterComponent(name: string) {
+export function RegisterComponent(name: string, exclusiveTag: string = "", replaceComponents: string[] = []) {
     return function <T extends ComponentConstructor>(constructor: T) {
-        ComponentRegistry.getInstance().registerComponent(name, constructor);
+        ComponentRegistry.getInstance().registerComponent(name, exclusiveTag, replaceComponents, constructor);
         return constructor;
     };
 }
@@ -47,6 +47,12 @@ export class ComponentRegistry {
     private singletonComponents: Set<string> = new Set();
     // 全局单例Component实例缓存 - componentName -> component instance
     private globalSingletonInstances: Map<string, BaseComponent> = new Map();
+    // 互斥tag,相同tag的组件不能同时在一个entity上
+    private exclusiveMap: Map<string, Set<string>> = new Map();
+    // componentName -> exclusiveTag
+    private exclusiveTags: Map<string, string> = new Map();
+    // 替换map，当add component时，会自动删除替换map中对应的component，优先级大于互斥tag
+    private replaceMap: Map<string, Set<string>> = new Map();
 
     private constructor() {}
 
@@ -64,9 +70,26 @@ export class ComponentRegistry {
      */
     public registerComponent<T extends BaseComponent>(
         name: string, 
+        exclusiveTag: string,
+        replaceComponents: string[],
         constructor: ComponentConstructor<T>
     ): void {
         this.componentConstructors.set(name, constructor);
+        if (exclusiveTag != "") {
+            if (!this.exclusiveMap.has(exclusiveTag)) {
+                this.exclusiveMap.set(exclusiveTag, new Set());
+            }
+            this.exclusiveMap.get(exclusiveTag)!.add(name);
+            this.exclusiveTags.set(name, exclusiveTag);
+        }
+        if (replaceComponents.length > 0) {
+            for (const replaceComponent of replaceComponents) {
+                if (!this.replaceMap.has(name)) {
+                    this.replaceMap.set(name, new Set());
+                }
+                this.replaceMap.get(name)!.add(replaceComponent);
+            }
+        }
     }
 
     /**
@@ -126,18 +149,18 @@ export class ComponentRegistry {
             }
         }
 
-        if (component) {
-            const world = owner.getWorld();
-            component = createObserver(component, (component) => {
-                world.getSyncQueue().updateSyncComponent(component);
-            });
-            world.getSyncQueue().updateAddComponent(component);
-            this.addComponentToEntity(owner.getId(), name, component);
-            return component;
-        }
+        return component;
+    }
 
-        console.warn(`Component "${name}" 未注册`);
-        return null;
+    public addComponent(component: BaseComponent, entity: BaseEntity): BaseComponent {
+        const world = entity.getWorld();
+        log.info("addComponent createObserver", component.getComponentName());
+        component = createObserver(component, (component) => {
+            world.getSyncQueue().updateSyncComponent(component);
+        });
+        world.getSyncQueue().updateAddComponent(component);
+        this.addComponentToEntity(entity.getId(), component.getComponentName(), component);
+        return component;
     }
 
     /**
@@ -347,5 +370,37 @@ export class ComponentRegistry {
      */
     public getAllSingletonInstances(): Map<string, BaseComponent> {
         return new Map(this.globalSingletonInstances);
+    }
+
+    public checkComponentReplace(componentName: string, components: Map<string, BaseComponent>): BaseComponent[] {
+        const replaceComponents = this.replaceMap.get(componentName);
+        if (!replaceComponents) {
+            return [];
+        }
+        const result: BaseComponent[] = [];
+        for (const component of components.values()) {
+            if (replaceComponents && replaceComponents.has(component.getComponentName())) {
+                result.push(component);
+            }
+        }
+        return result;
+    }
+
+    public checkComponentExclusive(componentName: string, components: Map<string, BaseComponent>): BaseComponent[] {
+        const exclusiveTag = this.exclusiveTags.get(componentName);
+        if (!exclusiveTag) {
+            return [];
+        }
+        const exclusiveComponents = this.exclusiveMap.get(exclusiveTag);
+        if (!exclusiveComponents) {
+            return [];
+        }
+        const result: BaseComponent[] = [];
+        for (const component of components.values()) {
+            if (exclusiveComponents.has(component.getComponentName())) {
+                result.push(component);
+            }
+        }
+        return result;
     }
 } 

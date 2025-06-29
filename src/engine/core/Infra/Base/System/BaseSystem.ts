@@ -23,7 +23,16 @@ export abstract class BaseSystem {
         this.focusComponent.push(component);
     }
 
+    getFocusComponent(): string[] {
+        return this.focusComponent;
+    }
+
     getEntities(): BaseEntity[] {
         return this.world.getEntitiesManager().getEntitiesWithComponents(this.world, this.focusComponent);
+    }
+
+    // 销毁组件，返回true则销毁完成，false则需要等待下一次tick继续回调
+    onComponentDestroying(entity: BaseEntity, componentName: string): boolean {
+        return true;
     }
 }

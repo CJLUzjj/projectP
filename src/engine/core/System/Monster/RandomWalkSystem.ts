@@ -3,7 +3,6 @@ import { World } from "../../Infra/World";
 import { System, SystemType } from "../../Infra/Decorators/SystemDecorator";
 import { BaseEntity } from "../../Infra/Base/BaseEntity";
 import { MessageComponent } from "../../Component/Input/MessageComponent";
-import { PalStatus } from "../../Data/common";
 import { MonsterPropertyComponent } from "../../Component/Property/MonsterPropertyComponent";
 import { RandomWalkComponent, RandomWalkState } from "../../Component/AI/RandomWalkComponent";
 import { PositionComponent } from "../../Component/Basic/PositionComponent";
@@ -13,6 +12,7 @@ import { HexCoord } from "../../Data/MapData";
 import { hexToPixel } from "../../Util/Position";
 import { HEX_SIZE } from "../../Data/constVal";
 import { log } from "../../Interface/Service/LogService";
+import { HexMapNavitationComponent, NavigationState } from "../../Component/Map/HexMapNavitationComponent";
 
 @System(SystemType.Execute)
 export class RandomWalkSystem extends BaseExcuteSystem {
@@ -29,16 +29,17 @@ export class RandomWalkSystem extends BaseExcuteSystem {
             const monsterPropertyComponent = entity.getComponent("MonsterProperty") as MonsterPropertyComponent;
             const randomWalkComponent = entity.getComponent("RandomWalk") as RandomWalkComponent;
             const positionComponent = entity.getComponent("Position") as PositionComponent;
-            const movementComponent = entity.getComponent("Movement") as MovementComponent;
 
             // 检查必要组件是否存在
-            if (!monsterPropertyComponent || !randomWalkComponent || !positionComponent || !movementComponent) {
+            if (!monsterPropertyComponent || !randomWalkComponent || !positionComponent) {
                 continue;
             }
 
-            // 只有空闲状态的怪物才进行随机游走
-            if (monsterPropertyComponent.status !== PalStatus.Idle) {
-                continue;
+            if (entity.hasComponent("HexMapNavitation")) {
+                const naviComponent = entity.getComponent("HexMapNavitation") as HexMapNavitationComponent;
+                if (naviComponent.getVersion() != randomWalkComponent.getNaviVersion()) {
+                    continue;
+                }
             }
 
             const currentTime = Date.now();
@@ -46,26 +47,41 @@ export class RandomWalkSystem extends BaseExcuteSystem {
             // 根据随机游走状态处理
             switch (randomWalkComponent.getState()) {
                 case RandomWalkState.Idle:
-                    this.handleIdleState(randomWalkComponent, currentTime);
+                    this.handleIdleState(entity, randomWalkComponent, positionComponent, currentTime);
                     break;
                     
                 case RandomWalkState.Moving:
-                    this.handleMovingState(randomWalkComponent, positionComponent, movementComponent, currentTime);
+                    if (!entity.hasComponent("HexMapNavitation")) {
+                        randomWalkComponent.reset(currentTime);
+                        break;
+                    }
+                    const naviComponent = entity.getComponent("HexMapNavitation") as HexMapNavitationComponent;
+                    this.handleMovingState(randomWalkComponent, naviComponent, currentTime);
                     break;
                     
                 case RandomWalkState.Arrived:
-                    this.handleArrivedState(randomWalkComponent, movementComponent, currentTime);
+                    this.handleArrivedState(randomWalkComponent, currentTime);
                     break;
             }
         }
     }
 
-    private handleIdleState(randomWalkComponent: RandomWalkComponent, currentTime: number): void {
+    private handleIdleState(entity: BaseEntity, randomWalkComponent: RandomWalkComponent, positionComponent: PositionComponent, currentTime: number): void {
+        if (!entity.canAddComponent("HexMapNavitation")) {
+            return;
+        }
+
         // 检查是否可以开始新的游走
         if (randomWalkComponent.canStartNewWalk(currentTime)) {
             // 生成随机目标
             const targetCoord = this.generateRandomTarget(randomWalkComponent);
             if (targetCoord) {
+                if (entity.hasComponent("HexMapNavitation")) {
+                    const naviComponent = entity.getComponent("HexMapNavitation") as HexMapNavitationComponent;
+                    naviComponent.reset(positionComponent.getHexCoord(), targetCoord, this.world.getSpaceId());
+                } else {
+                    entity.addComponent("HexMapNavitation", positionComponent.getHexCoord(), targetCoord, this.world.getSpaceId());
+                }
                 randomWalkComponent.setTargetHexCoord(targetCoord);
                 randomWalkComponent.setState(RandomWalkState.Moving);
                 randomWalkComponent.setCurrentWalkTime(currentTime);
@@ -76,8 +92,7 @@ export class RandomWalkSystem extends BaseExcuteSystem {
 
     private handleMovingState(
         randomWalkComponent: RandomWalkComponent, 
-        positionComponent: PositionComponent, 
-        movementComponent: MovementComponent, 
+        naviComponent: HexMapNavitationComponent,
         currentTime: number
     ): void {
         const targetCoord = randomWalkComponent.getTargetHexCoord();
@@ -89,47 +104,24 @@ export class RandomWalkSystem extends BaseExcuteSystem {
         // 检查是否游走超时
         if (randomWalkComponent.isWalkTimeout(currentTime)) {
             log.info("随机游走超时，停止移动");
-            movementComponent.setDirection({ x: 0, y: 0 });
+            naviComponent.setState(NavigationState.Finished);
             randomWalkComponent.setState(RandomWalkState.Arrived);
             return;
         }
 
-        // 获取当前位置和目标位置
-        const currentPos = positionComponent.getPosition();
-        const targetPos = hexToPixel(targetCoord, HEX_SIZE);
-
-        // 计算方向向量
-        const directionX = targetPos.x - currentPos.x;
-        const directionY = targetPos.y - currentPos.y;
-        const distance = Math.sqrt(directionX * directionX + directionY * directionY);
-
-        // 如果已经接近目标点，标记为到达
-        if (distance < 10) { // 容差
+        if (naviComponent.getState() == NavigationState.Finished) {
             randomWalkComponent.setState(RandomWalkState.Arrived);
             return;
-        }
-
-        // 标准化方向向量并设置移动
-        if (distance > 0) {
-            const normalizedX = directionX / distance;
-            const normalizedY = directionY / distance;
-            movementComponent.setDirection({ x: normalizedX, y: normalizedY });
         }
     }
 
     private handleArrivedState(
-        randomWalkComponent: RandomWalkComponent, 
-        movementComponent: MovementComponent, 
+        randomWalkComponent: RandomWalkComponent,
         currentTime: number
     ): void {
-        // 停止移动
-        movementComponent.setDirection({ x: 0, y: 0 });
-        
-        // 更新上次游走时间
-        randomWalkComponent.setLastWalkTime(currentTime);
         
         // 重置状态
-        randomWalkComponent.reset();
+        randomWalkComponent.reset(currentTime);
         
         log.info("随机游走完成");
     }

@@ -62,7 +62,6 @@ export class MonsterOperateSystem extends BaseExcuteSystem {
                 monsterPropertyComponent.baseProperty = monsterData.baseProperty;
                 monsterPropertyComponent.workProperty = monsterData.workProperty;
                 monsterPropertyComponent.masterId = monsterData.masterId;
-                monsterPropertyComponent.status = monsterData.status;
                 monster.addComponent("Movement", monsterPropertyComponent.baseProperty.speed);
             }
             if (monster.hasComponent("Position")) {

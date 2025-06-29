@@ -61,7 +61,7 @@ export default class Building extends Sprite2D {
 			return new SyncCallback();
 		}
 
-		const entity = component.owner;
+		const entity = component.getOwner();
 		const positionComponent = entity.getComponent("Position") as PositionComponent;
 		if (positionComponent == null) {
 			log.error("positionComponent is null");

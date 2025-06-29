@@ -30,7 +30,7 @@ class TestPropertySyncService extends PropertySyncService {
     }
 
     public onSyncComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const componentMap = data.get(entityId);
         if (componentMap) {
             componentMap.set(component.getComponentName(), component);
@@ -39,21 +39,21 @@ class TestPropertySyncService extends PropertySyncService {
     }
 
     public onAddComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const componentMap = data.get(entityId);
         if (componentMap) {
             componentMap.set(component.getComponentName(), component);
         }
-        log.info("addComponent", component.owner.getId(), component.getComponentName());
+        log.info("addComponent", component.getOwner().getId(), component.getComponentName());
     }
 
     public onRemoveComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const componentMap = data.get(entityId);
         if (componentMap) {
             componentMap.delete(component.getComponentName());
         }
-        log.info("removeComponent", component.owner.getId(), component.getComponentName());
+        log.info("removeComponent", component.getOwner().getId(), component.getComponentName());
     }
 }
 

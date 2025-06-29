@@ -38,31 +38,31 @@ class TestPropertySyncService extends PropertySyncService {
     }
 
     public onAddComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const componentMap = data.get(entityId);
         if (componentMap) {
             componentMap.set(component.getComponentName(), component);
         }
-        log.info("addComponent", component.owner.getId(), component.getComponentName());
+        log.info("addComponent", component.getOwner().getId(), component.getComponentName());
 
         if (component.getComponentName() == "RoomProperty") {
             const roomProperty = component as RoomPropertyComponent;
-            console_app.spaceId = roomProperty.owner.getId();
+            console_app.spaceId = roomProperty.getOwner().getId();
         }
 
         if (component.getComponentName() == "AvatarProperty") {
             const avatarProperty = component as AvatarPropertyComponent;
-            console_app.avatarId = avatarProperty.owner.getId();
+            console_app.avatarId = avatarProperty.getOwner().getId();
         }
     }
 
     public onRemoveComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const componentMap = data.get(entityId);
         if (componentMap) {
             componentMap.delete(component.getComponentName());
         }
-        log.info("removeComponent", component.owner.getId(), component.getComponentName());
+        log.info("removeComponent", component.getOwner().getId(), component.getComponentName());
     }
 }
 
@@ -349,7 +349,7 @@ class InteractiveGameConsole {
                     try {
                         // 尝试显示组件的部分信息（避免过于详细）
                         log.info(`   类型: ${component.constructor.name}`);
-                        log.info(`   所有者: ${component.owner?.getId() || 'unknown'}`);
+                        log.info(`   所有者: ${component.getOwner()?.getId() || 'unknown'}`);
                     } catch (error) {
                         log.info(`   ⚠️  无法显示详细信息: ${error}`);
                     }
@@ -367,7 +367,7 @@ class InteractiveGameConsole {
 
             log.info(`📦 组件: ${componentName}`);
             log.info(`   类型: ${component.constructor.name}`);
-            log.info(`   所有者: ${component.owner?.getId() || 'unknown'}`);
+            log.info(`   所有者: ${component.getOwner()?.getId() || 'unknown'}`);
             
             // 尝试显示更多信息
             try {

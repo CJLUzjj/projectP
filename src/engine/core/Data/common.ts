@@ -8,13 +8,6 @@ export enum MonsterType {
     Undead = "Undead",
 }
 
-// 帕鲁状态枚举
-export enum PalStatus {
-    Idle = "Idle",        // 待机
-    Working = "Working",  // 工作中
-    Resting = "Resting"   // 休息中
-}
-
 // 建筑类型枚举
 export enum BuildingType {
     Farm = "Farm",                   // 农场 - 农耕
@@ -78,5 +71,6 @@ export enum WorkStatus {
     MovingDone = "MovingDone",
     Working = "Working",
     Finished = "Finished",
+    Failed = "Failed",
     Canceled = "Canceled",
 }

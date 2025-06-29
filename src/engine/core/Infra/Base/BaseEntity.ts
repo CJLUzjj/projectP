@@ -9,11 +9,17 @@ import { BackpackComponent } from "../../Component/Basic/BackpackComponent";
 export class BaseEntity {
     private id: number;
     private components: Map<string, BaseComponent>;
+    private pendingComponents: Map<string, BaseComponent>;
+    private pendingRefCount: Map<string, number>;
+    private destroyingComponents: Map<string, string>;
     private world: World;
 
     constructor(world: World, id: number = 0) {
         this.id = id;
         this.components = new Map();
+        this.pendingComponents = new Map();
+        this.pendingRefCount = new Map();
+        this.destroyingComponents = new Map();
         this.world = world;
     }
 
@@ -59,6 +65,33 @@ export class BaseEntity {
         return this.components.has(componentName);
     }
 
+    canAddComponent(componentName: string): boolean {
+        if (this.components.has(componentName)) {
+            return false;
+        }
+        if (this.pendingComponents.has(componentName)) {
+            return false;
+        }
+        const replaceComponents = ComponentRegistry.getInstance().checkComponentReplace(componentName, this.components);
+        const exclusiveComponents = ComponentRegistry.getInstance().checkComponentExclusive(componentName, this.components);
+        if (exclusiveComponents.length > 0) {
+            for (const component1 of exclusiveComponents) {
+                let find = false;
+                for (const component2 of replaceComponents) {
+                    if (component1.getComponentName() === component2.getComponentName()) {
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    log.error(`Component ${componentName} is exclusive with ${component1.getComponentName()}`);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * 添加Component到此Entity
      * @param componentName Component名称
@@ -66,19 +99,70 @@ export class BaseEntity {
      * @returns 创建的Component实例
      */
     addComponent<T extends BaseComponent>(componentName: string, ...args: any[]): T | null {
+        if (this.components.has(componentName)) {
+            log.error(`Component ${componentName} already exists`);
+            return null;
+        }
+        if (this.pendingComponents.has(componentName)) {
+            log.error(`Component ${componentName} is pending`);
+            return null;
+        }
+        const replaceComponents = ComponentRegistry.getInstance().checkComponentReplace(componentName, this.components);
+        const exclusiveComponents = ComponentRegistry.getInstance().checkComponentExclusive(componentName, this.components);
+        if (exclusiveComponents.length > 0) {
+            for (const component1 of exclusiveComponents) {
+                let find = false;
+                for (const component2 of replaceComponents) {
+                    if (component1.getComponentName() === component2.getComponentName()) {
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    log.error(`Component ${componentName} is exclusive with ${component1.getComponentName()}`);
+                    return null;
+                }
+            }
+        }
+        for (const component of replaceComponents) {
+            this.removeComponent(component.getComponentName());
+        }
         const component = ComponentRegistry.getInstance().createComponent<T>(componentName, this, ...args);
         if (component) {
-            this.components.set(componentName, component);
+            if (replaceComponents.length > 0) {
+                this.pendingComponents.set(componentName, component);
+                this.pendingRefCount.set(componentName, replaceComponents.length);
+            } else {
+                const newComponent = ComponentRegistry.getInstance().addComponent(component, this);
+                this.components.set(componentName, newComponent);
+            }
         }
         return component;
     }
 
     /**
-     * 移除指定Component
+     * 将Component标记为销毁
      * @param componentName Component名称
      * @returns 是否成功移除
      */
-    removeComponent(componentName: string): boolean {
+    removeComponent(componentName: string, removedBy: string = ""): boolean {
+        if (this.hasComponent(componentName)) {
+            const component = this.getComponent(componentName);
+            if (component) {
+                component.setDestroying(true);
+                this.components.delete(componentName);
+                this.destroyingComponents.set(componentName, removedBy);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 真正移除Component
+     * @param componentName Component名称
+     * @returns 是否成功移除
+     */
+    realRemoveComponent(componentName: string): boolean {
         if (this.hasComponent(componentName)) {
             const component = this.getComponent(componentName);
             if (component) {
@@ -91,6 +175,41 @@ export class BaseEntity {
             }
         }
         return false;
+    }
+
+    getDestroyingComponents(): BaseComponent[] {
+        const result: BaseComponent[] = [];
+        for (const [componentName, removedBy] of this.destroyingComponents) {
+            const component = this.components.get(componentName);
+            if (component) {
+                result.push(component);
+            }
+        }
+        return result;
+    }
+
+    removeDestroyingComponent(componentName: string): void {
+        if (this.destroyingComponents.has(componentName)) {
+            const removedBy = this.destroyingComponents.get(componentName);
+            if (removedBy && removedBy !== "") {
+                let refCount = this.pendingRefCount.get(removedBy);
+                if (refCount) {
+                    refCount -= 1;
+                    if (refCount <= 0) {
+                        const component = this.pendingComponents.get(removedBy);
+                        if (component) {
+                            const newComponent = ComponentRegistry.getInstance().addComponent(component, this);
+                            this.components.set(removedBy, newComponent);
+                        }
+                        this.pendingComponents.delete(removedBy);
+                        this.pendingRefCount.delete(removedBy);
+                    } else {
+                        this.pendingRefCount.set(removedBy, refCount);
+                    }
+                }
+            }
+        }
+        this.destroyingComponents.delete(componentName);
     }
 
     getWorld(): World {
@@ -106,7 +225,8 @@ export class BaseEntity {
         // 创建序列化数据对象，排除world属性
         const serializationData = {
             id: this.id,
-            components: [] as Array<{name: string, data: any}>
+            components: [] as Array<{name: string, data: any}>,
+            destroyingComponents: this.destroyingComponents
         };
         
         // 序列化所有组件
@@ -139,12 +259,12 @@ export class BaseEntity {
             
             // 恢复id
             this.id = serializationData.id;
+            this.destroyingComponents = serializationData.destroyingComponents;
 
             this.world.getSyncQueue().updateAddEntity(this);
             
             // 清空现有组件
             this.components.clear();
-            
             // 恢复组件
             for (const componentInfo of serializationData.components) {
                 const componentName = componentInfo.name;

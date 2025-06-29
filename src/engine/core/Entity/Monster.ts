@@ -1,8 +1,4 @@
-import { generateId, IdTypes } from "../Util/IdGenerator";
 import { BaseEntity } from "../Infra/Base/BaseEntity";
-import { MonsterType, PalStatus } from "../Data/common";
-import { MonsterPropertyComponent } from "../Component/Property/MonsterPropertyComponent";
-import { WorkType } from "../Data/WorkData";
 import { World } from "../Infra/World";
 export class Monster extends BaseEntity {
 
@@ -13,6 +9,7 @@ export class Monster extends BaseEntity {
     init() {
         this.addComponent("MonsterProperty");
         this.addComponent("Position");
+        this.addComponent("RandomWalk");
     }
 
     // static createDefaultMonster(type: MonsterType, name: string, level: number, masterId: string): Monster {

@@ -34,7 +34,7 @@ export class SyncQueue {
     }
 
     public updateAddComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const componentMap = this.componentAddQueue.get(entityId);
         if (componentMap) {
             componentMap.set(component.getComponentName(), component);
@@ -46,7 +46,7 @@ export class SyncQueue {
     }
     
     public updateRemoveComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        const entityId = component.getOwner().getId();
         const addComponentMap = this.componentAddQueue.get(entityId);
         if (addComponentMap) {
             if (addComponentMap.has(component.getComponentName())) {
@@ -66,7 +66,8 @@ export class SyncQueue {
     }
 
     public updateSyncComponent(component: BaseComponent) {
-        const entityId = component.owner.getId();
+        log.info("updateSyncComponent", component.getComponentName());
+        const entityId = component.getOwner().getId();
         const addComponentMap = this.componentAddQueue.get(entityId);
         if (addComponentMap) {
             if (addComponentMap.has(component.getComponentName())) {

@@ -2,6 +2,7 @@ import { BaseEntity } from "../../Infra/Base/BaseEntity";
 import { BaseComponent } from "../../Infra/Base/BaseComponent";
 import { MessageService } from "./MessageService";
 import { World } from "../../Infra/World";
+import { log } from "./LogService";
 
 export function createObserver<T extends BaseComponent>(
     target: T,
@@ -11,6 +12,7 @@ export function createObserver<T extends BaseComponent>(
       set(target, prop: string | symbol, newVal, receiver) {
         const oldVal = target[prop as keyof T];
         (target as any)[prop] = newVal;
+        log.info("PropertySyncService set", prop, newVal);
         callback(target); // 触发回调
         return true; // 表示设置成功
       }

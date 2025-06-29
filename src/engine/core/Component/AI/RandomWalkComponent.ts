@@ -18,6 +18,7 @@ export class RandomWalkComponent extends BaseComponent {
     private lastWalkTime: number;         // 上次游走时间
     private currentWalkTime: number;      // 当前游走开始时间
     private walkDuration: number;         // 单次游走持续时间（毫秒）
+    private naviVersion: number;
 
     constructor(owner: BaseEntity) {
         super(owner, "RandomWalk");
@@ -27,7 +28,8 @@ export class RandomWalkComponent extends BaseComponent {
         this.walkInterval = 5000;         // 默认5秒间隔
         this.lastWalkTime = 0;
         this.currentWalkTime = 0;
-        this.walkDuration = 3000;         // 默认3秒游走时间
+        this.walkDuration = 30000;         // 默认3秒游走时间
+        this.naviVersion = 0;
     }
 
     // 获取当前状态
@@ -111,8 +113,13 @@ export class RandomWalkComponent extends BaseComponent {
     }
 
     // 重置组件状态
-    reset(): void {
+    reset(currentTime: number): void {
         this.state = RandomWalkState.Idle;
         this.targetHexCoord = null;
+        this.lastWalkTime = currentTime;
+    }
+
+    getNaviVersion(): number {
+        return this.naviVersion;
     }
 } 
