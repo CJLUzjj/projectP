@@ -5,7 +5,7 @@ import { SystemType } from "../../Infra/Decorators/SystemDecorator";
 import { World } from "../../Infra/World";
 import { WorkFlowComponent } from "../../Component/Work/WorkFlowComponent";
 import { WorkFlowData, WorkType } from "../../Data/WorkData";
-import { WorkBaseType, WorkStatus } from "../../Data/common";
+import { PalStatus, WorkBaseType, WorkStatus } from "../../Data/common";
 import { Monster } from "../../Entity/Monster";
 import { PositionComponent } from "../../Component/Basic/PositionComponent";
 import { HexMapNavitationComponent, NavigationState } from "../../Component/Map/HexMapNavitationComponent";
@@ -16,7 +16,8 @@ import { BuildingWorkProgressComponent } from "../../Component/Work/BuildingWork
 import { ProductionWorkProgressComponent } from "../../Component/Work/ProductionWorkProgressComponent";
 import { RestWorkProgressComponent } from "../../Component/Work/RestWorkProgressComponent";
 import { SyntheticWorkProgressComponent } from "../../Component/Work/SyntheticWorkProgressComponent";
-
+import { MonsterPropertyComponent } from "../../Component/Property/MonsterPropertyComponent";
+import { stopMonsterMoving } from "../Utility/Monster/Common";
 @System(SystemType.Execute)
 export class WorkFlowSystem extends BaseExcuteSystem {
     constructor(world: World) {
@@ -42,6 +43,7 @@ export class WorkFlowSystem extends BaseExcuteSystem {
             for (const workFlowData of workFlow.getWorkFlowList()) {
                 const shouldDelete = this.updateWorkFlow(workFlowData);
                 if (shouldDelete) {
+                    this.resetMonsterStatus(workFlowData);
                     deleteList.push(workFlowData.monsterId);
                 }
             }
@@ -52,6 +54,15 @@ export class WorkFlowSystem extends BaseExcuteSystem {
         }
     }
 
+    resetMonsterStatus(workFlow: WorkFlowData) {
+        const monster = this.world.getEntitiesManager().getEntity(workFlow.monsterId) as Monster;
+        if (!monster) {
+            return;
+        }
+        const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
+        monsterPropertyComponent.status = PalStatus.Idle;
+    }
+
     updateWorkFlow(workFlow: WorkFlowData): boolean {
         const monster = this.world.getEntitiesManager().getEntity(workFlow.monsterId) as Monster;
         if (!monster) {
@@ -60,11 +71,20 @@ export class WorkFlowSystem extends BaseExcuteSystem {
 
         switch (workFlow.status) {
             case WorkStatus.None:
+                const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
+                if (monsterPropertyComponent.status != PalStatus.Idle && monsterPropertyComponent.status != PalStatus.Moving) {
+                    log.error("怪物状态异常", workFlow.monsterId, workFlow.buildingId, workFlow.hexPos, monsterPropertyComponent.status);
+                    return true;
+                }
+                if (monsterPropertyComponent.status == PalStatus.Moving) {
+                    stopMonsterMoving(monster);
+                }
                 const positionComponent = monster.getComponent("Position") as PositionComponent;
                 if (positionComponent) {
                     const hexCoord = positionComponent.getHexCoord();
                     if (hexCoord.q != workFlow.hexPos.q || hexCoord.r != workFlow.hexPos.r) {
                         workFlow.naviAddTimestamp = this.world.getCurrentVirtualTime();
+                        monsterPropertyComponent.status = PalStatus.MovingToWork;
                         monster.addComponent("HexMapNavitation", hexCoord, workFlow.hexPos, workFlow.buildingId, workFlow.naviAddTimestamp);
                         workFlow.status = WorkStatus.Moving;
                     } else {
@@ -81,6 +101,8 @@ export class WorkFlowSystem extends BaseExcuteSystem {
                     }
                     if (hexMapNavitation.getState() == NavigationState.Arrived) {
                         workFlow.status = WorkStatus.MovingDone;
+                        const monsterPropertyComponent = monster.getComponent("MonsterProperty") as MonsterPropertyComponent;
+                        monsterPropertyComponent.status = PalStatus.Idle;
                         hexMapNavitation.setState(NavigationState.Finished);
                     } else if (hexMapNavitation.getState() == NavigationState.Failed) {
                         log.error("路径寻找失败", workFlow.monsterId, workFlow.buildingId, workFlow.hexPos);
